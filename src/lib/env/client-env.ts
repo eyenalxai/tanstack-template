@@ -8,5 +8,5 @@ export const clientEnv = createEnv({
   clientPrefix: "VITE_",
   runtimeEnv: import.meta.env,
   emptyStringAsUndefined: true,
-  skipValidation: import.meta.env.BUILD_TIME?.toLowerCase() === "true",
+  skipValidation: process.env.BUILD_TIME?.toLowerCase() === "true",
 })
