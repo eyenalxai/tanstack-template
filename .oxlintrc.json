@@ -107,7 +107,5 @@
     "builtin": true
   },
   "globals": {},
-  "ignorePatterns": [
-    "src/components/**/*.{ts,tsx}"
-  ]
+  "ignorePatterns": ["src/components/**/*.{ts,tsx}"]
 }
