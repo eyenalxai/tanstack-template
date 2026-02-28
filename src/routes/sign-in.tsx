@@ -143,14 +143,14 @@ function SignInPage() {
               )}
             </form.Field>
 
-            {submitError ? (
+            {submitError !== undefined && submitError !== null && submitError !== "" ? (
               <p className="text-destructive-foreground text-sm">{submitError}</p>
             ) : null}
 
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
-                <Button disabled={!canSubmit || isSubmitting} type="submit">
-                  {isSubmitting ? "Signing in..." : "Sign In"}
+                <Button disabled={canSubmit !== true || isSubmitting === true} type="submit">
+                  {isSubmitting === true ? "Signing in..." : "Sign In"}
                 </Button>
               )}
             </form.Subscribe>
@@ -170,7 +170,7 @@ function SignInPage() {
 }
 
 function getSafeRedirect(redirect: string | undefined, fallback: string) {
-  if (!redirect) {
+  if (redirect === undefined || redirect === null || redirect === "") {
     return fallback
   }
 

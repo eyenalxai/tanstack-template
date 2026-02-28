@@ -148,14 +148,14 @@ function SignUpPage() {
               )}
             </form.Field>
 
-            {submitError ? (
+            {submitError !== undefined && submitError !== null && submitError !== "" ? (
               <p className="text-destructive-foreground text-sm">{submitError}</p>
             ) : null}
 
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
-                <Button disabled={!canSubmit || isSubmitting} type="submit">
-                  {isSubmitting ? "Creating account..." : "Sign Up"}
+                <Button disabled={canSubmit !== true || isSubmitting === true} type="submit">
+                  {isSubmitting === true ? "Creating account..." : "Sign Up"}
                 </Button>
               )}
             </form.Subscribe>
@@ -177,11 +177,11 @@ function SignUpPage() {
 function deriveNameFromEmail(email: string) {
   const [localPart] = email.split("@")
   const trimmed = localPart?.trim()
-  return trimmed && trimmed.length > 0 ? trimmed : "user"
+  return trimmed !== undefined && trimmed !== null && trimmed.length > 0 ? trimmed : "user"
 }
 
 function getSafeRedirect(redirect: string | undefined, fallback: string) {
-  if (!redirect) {
+  if (redirect === undefined || redirect === null || redirect === "") {
     return fallback
   }
 

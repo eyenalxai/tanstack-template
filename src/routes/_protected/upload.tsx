@@ -99,7 +99,7 @@ function UploadStuffPage() {
               }}
             </form.Field>
 
-            {submitError ? (
+            {submitError !== undefined && submitError !== null && submitError !== "" ? (
               <p className="text-destructive-foreground text-sm">{submitError}</p>
             ) : null}
 

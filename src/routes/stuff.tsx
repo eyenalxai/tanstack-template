@@ -117,7 +117,10 @@ function StuffPage() {
                     <TableCell>{stuff.user?.name ?? stuff.user?.email ?? "Unknown"}</TableCell>
                     <TableCell>{formatDate(stuff.createdAt)}</TableCell>
                     <TableCell className="text-right">
-                      {viewerUserId && stuff.userId === viewerUserId ? (
+                      {viewerUserId !== undefined &&
+                      viewerUserId !== null &&
+                      viewerUserId !== "" &&
+                      stuff.userId === viewerUserId ? (
                         <Button onClick={() => openEditDialog(stuff)} size="sm" variant="outline">
                           Edit
                         </Button>
