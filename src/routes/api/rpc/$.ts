@@ -2,6 +2,7 @@ import { onError } from "@orpc/server"
 import { RPCHandler } from "@orpc/server/fetch"
 import { createFileRoute } from "@tanstack/react-router"
 
+import { db } from "@/lib/database/client"
 import { router } from "@/lib/orpc/router"
 
 const handler = new RPCHandler(router, {
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/api/rpc/$")({
         const { response } = await handler.handle(request, {
           prefix: "/api/rpc",
           context: {
+            db,
             headers: request.headers,
           },
         })

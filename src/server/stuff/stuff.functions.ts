@@ -1,12 +1,12 @@
 import { and, eq } from "drizzle-orm"
 
+import type { Transaction } from "@/lib/database/client"
 import type { CreateStuffInput, UpdateStuffInput } from "@/server/stuff/stuff.schemas"
 
-import { db } from "@/lib/database/client"
 import { stuffs } from "@/lib/database/schema"
 
-export function listStuffs() {
-  return db.query.stuffs.findMany({
+export function listStuffs(tx: Transaction) {
+  return tx.query.stuffs.findMany({
     orderBy: (table, { desc }) => [desc(table.createdAt)],
     with: {
       user: {
@@ -20,8 +20,8 @@ export function listStuffs() {
   })
 }
 
-export async function createStuff(input: CreateStuffInput, userId: string) {
-  const [newStuff] = await db
+export async function createStuff(tx: Transaction, input: CreateStuffInput, userId: string) {
+  const [newStuff] = await tx
     .insert(stuffs)
     .values({
       description: input.description,
@@ -36,8 +36,8 @@ export async function createStuff(input: CreateStuffInput, userId: string) {
   return newStuff
 }
 
-export async function updateStuff(input: UpdateStuffInput, userId: string) {
-  const [updatedStuff] = await db
+export async function updateStuff(tx: Transaction, input: UpdateStuffInput, userId: string) {
+  const [updatedStuff] = await tx
     .update(stuffs)
     .set({
       description: input.description,

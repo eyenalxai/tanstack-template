@@ -9,12 +9,14 @@ import { getRequest } from "@tanstack/react-start/server"
 
 import type { AppRouter } from "@/lib/orpc/router"
 
+import { db } from "@/lib/database/client"
 import { router } from "@/lib/orpc/router"
 
 const getORPCClient = createIsomorphicFn()
   .server(() =>
     createRouterClient(router, {
       context: () => ({
+        db,
         headers: getRequest().headers,
       }),
     }),

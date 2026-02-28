@@ -2,6 +2,7 @@ import { ORPCError, os } from "@orpc/server"
 import { z } from "zod"
 
 import { auth } from "@/lib/auth/auth"
+import { db } from "@/lib/database/client"
 
 const authSessionSchema = z.object({
   userId: z.string(),
@@ -21,7 +22,7 @@ const authSessionDataSchema = z.object({
 export type AuthSession = z.infer<typeof authSessionSchema>
 export type AuthUser = z.infer<typeof authUserSchema>
 
-export const baseProcedure = os.$context<{ headers: Headers }>()
+export const baseProcedure = os.$context<{ db: typeof db; headers: Headers }>()
 
 export const publicProcedure = baseProcedure
 
@@ -38,6 +39,7 @@ export const authorizedProcedure = publicProcedure.use(async ({ context, next })
 
   return next({
     context: {
+      ...context,
       session: parsedSessionResult.data.session,
       user: parsedSessionResult.data.user,
     },
