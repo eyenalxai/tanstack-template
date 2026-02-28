@@ -6,7 +6,7 @@ This project is a TanStack Start template with:
 - PostgreSQL + Drizzle
 - Better Auth (email/password)
 - oRPC + TanStack Query
-- Tailwind CSS v4 + shadcn/coss UI components
+- Tailwind CSS v4 + coss/ui components
 
 ## What this app already has
 
