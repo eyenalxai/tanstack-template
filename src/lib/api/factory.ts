@@ -111,7 +111,7 @@ export function createQueryProcedure<TInput, TOutput, TQueryKey extends QueryKey
 
     return queryOptions({
       queryKey,
-      queryFn: () => internalConfig.queryFn(input),
+      queryFn: async () => internalConfig.queryFn(input),
     })
   }
 
@@ -214,7 +214,7 @@ export function createServerDataMutationProcedure<
   type TOutput = Awaited<ReturnType<TServerFn>>
 
   return createMutationProcedure<TInput, TOutput, TMutationKey>({
-    mutationFn: (input) => config.serverFn({ data: input } as Parameters<TServerFn>[0]),
+    mutationFn: async (input) => config.serverFn({ data: input } as Parameters<TServerFn>[0]),
     mutationKey: config.mutationKey,
   })
 }
@@ -241,11 +241,11 @@ export function createQueryUtils<TInput, TOutput, TQueryKey extends QueryKey>(
   return {
     key: procedure.key,
     queryOptions: procedure.queryOptions,
-    prefetch: (...args: ProcedureArgs<TInput>) =>
+    prefetch: async (...args: ProcedureArgs<TInput>) =>
       queryClient.prefetchQuery(procedure.queryOptions(...args)),
-    ensureData: (...args: ProcedureArgs<TInput>) =>
+    ensureData: async (...args: ProcedureArgs<TInput>) =>
       queryClient.ensureQueryData(procedure.queryOptions(...args)),
-    invalidate: (...args: ProcedureArgs<TInput>) =>
+    invalidate: async (...args: ProcedureArgs<TInput>) =>
       queryClient.invalidateQueries({ queryKey: procedure.invalidateKey(...args) }),
     getData: (...args: ProcedureArgs<TInput>) =>
       queryClient.getQueryData<TOutput>(procedure.key(...args)),
