@@ -12,6 +12,7 @@ import {
   queryOptions,
   useMutation,
   useQuery,
+  useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query"
 
@@ -226,6 +227,10 @@ interface AnyMutationProcedure {
 }
 
 type AnyProcedure = AnyQueryProcedure | AnyMutationProcedure
+type AnyProcedureDomain = {
+  api: Record<string, AnyProcedure>
+  createUtils: (queryClient: QueryClient) => Record<string, unknown>
+}
 
 type DomainUtils<TProcedures extends Record<string, AnyProcedure>> = {
   [K in keyof TProcedures as TProcedures[K] extends { kind: "query" }
@@ -258,5 +263,44 @@ export function createProcedureDomain<const TProcedures extends Record<string, A
   return {
     api: procedures,
     createUtils,
+  } as const
+}
+
+type DomainApi<TDomains extends Record<string, AnyProcedureDomain>> = {
+  [K in keyof TDomains]: TDomains[K]["api"]
+}
+
+type DomainUtilsMap<TDomains extends Record<string, AnyProcedureDomain>> = {
+  [K in keyof TDomains]: ReturnType<TDomains[K]["createUtils"]>
+}
+
+export function createApiSurface<const TDomains extends Record<string, AnyProcedureDomain>>(
+  domains: TDomains,
+) {
+  const domainApi = Object.fromEntries(
+    Object.entries(domains).map(([domainName, domain]) => [domainName, domain.api]),
+  ) as DomainApi<TDomains>
+
+  function createApiUtils(queryClient: QueryClient): DomainUtilsMap<TDomains> {
+    return Object.fromEntries(
+      Object.entries(domains).map(([domainName, domain]) => [
+        domainName,
+        domain.createUtils(queryClient),
+      ]),
+    ) as DomainUtilsMap<TDomains>
+  }
+
+  function useApiUtils() {
+    const queryClient = useQueryClient()
+    return createApiUtils(queryClient)
+  }
+
+  return {
+    api: {
+      ...domainApi,
+      useUtils: useApiUtils,
+    } as DomainApi<TDomains> & { useUtils: typeof useApiUtils },
+    createApiUtils,
+    useApiUtils,
   } as const
 }

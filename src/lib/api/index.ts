@@ -1,21 +1,12 @@
-import type { QueryClient } from "@tanstack/react-query"
+import { createApiSurface } from "@/lib/api/factory"
+import { stuffDomain } from "@/lib/api/stuff"
 
-import { useQueryClient } from "@tanstack/react-query"
-
-import { stuffApi, createStuffUtils } from "@/lib/api/stuff"
-
-export function createApiUtils(queryClient: QueryClient) {
-  return {
-    stuff: createStuffUtils(queryClient),
-  } as const
-}
-
-export function useApiUtils() {
-  const queryClient = useQueryClient()
-  return createApiUtils(queryClient)
-}
-
-export const api = {
-  stuff: stuffApi,
-  useUtils: useApiUtils,
+const domains = {
+  stuff: stuffDomain,
 } as const
+
+const apiSurface = createApiSurface(domains)
+
+export const api = apiSurface.api
+export const createApiUtils = apiSurface.createApiUtils
+export const useApiUtils = apiSurface.useApiUtils

@@ -12,7 +12,7 @@ const stuffKeys = {
   update: () => ["stuff", "update"] as const,
 }
 
-const stuffDomain = createProcedureDomain({
+export const stuffDomain = createProcedureDomain({
   list: createQueryProcedure({
     key: stuffKeys.list,
     queryFn: listStuffs,
