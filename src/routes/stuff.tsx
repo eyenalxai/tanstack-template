@@ -37,7 +37,7 @@ function StuffPage() {
   const [editError, setEditError] = useState<string | null>(null)
 
   const updateStuffMutation = api.stuff.update.useMutation({
-    onMutate: async (input) => {
+    onMutate: (input) => {
       const mutationInput = input as { uuid: string; description: string }
       setEditError(null)
       const previousStuffList = utils.stuff.list.getData()
