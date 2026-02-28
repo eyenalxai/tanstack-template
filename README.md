@@ -1,0 +1,124 @@
+# TanStack Start Template
+
+This project is a TanStack Start template with:
+
+- React Router (file-based routes)
+- PostgreSQL + Drizzle
+- Better Auth (email/password)
+- oRPC + TanStack Query
+- Tailwind CSS v4 + shadcn/coss UI components
+
+## What this app already has
+
+- `/` home page
+- `/stuff` public list of all entries
+- `/upload` protected page to create an entry
+- `/sign-in` and `/sign-up` pages
+- Edit action only for the owner of the entry (enforced on the server)
+
+## Quick start
+
+1. Install dependencies:
+
+```bash
+bun install
+```
+
+2. Create `.env.local`:
+
+```bash
+DATABASE_URL=postgresql://postgres:mysecretpassword@localhost:5432/postgres
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=replace-with-a-random-secret
+VITE_PUBLIC_APP_URL=http://localhost:3000
+```
+
+3. Start PostgreSQL:
+
+```bash
+docker compose up -d
+```
+
+4. Run migrations:
+
+```bash
+bun run db:migrate-local
+```
+
+5. Start the app:
+
+```bash
+bun run dev
+```
+
+App URL: `http://localhost:3000`
+
+## Scripts
+
+- `bun run dev` - start dev server
+- `bun run build` - build for production
+- `bun run start` - preview production build
+- `bun run check` - format, lint (with fixes), and type-check
+- `bun run db:generate` - generate Drizzle migration files
+- `bun run db:migrate` - run migrations
+- `bun run db:migrate-local` - run migrations with `.env.local`
+- `bun run auth:generate` - regenerate auth schema file
+
+## Environment variables
+
+Server:
+
+- `DATABASE_URL`
+- `BETTER_AUTH_URL`
+- `BETTER_AUTH_SECRET`
+
+Client:
+
+- `VITE_PUBLIC_APP_URL`
+
+Optional:
+
+- `BUILD_TIME=true` to skip env validation at build time
+
+## Authentication
+
+This is normal email/password auth using Better Auth.
+
+- Server config: `src/lib/auth/auth.ts`
+- Client calls: `src/lib/auth/auth-client.ts`
+- API route: `src/routes/api/auth/$.ts`
+- Session helpers: `src/server/auth/session.functions.ts`
+
+When auth config changes, regenerate the auth schema:
+
+```bash
+bun run auth:generate
+```
+
+This updates:
+
+- `src/lib/database/auth-schema.ts`
+
+## Database
+
+- DB client: `src/lib/database/client.ts`
+- App tables: `src/lib/database/schema.ts`
+- Auth tables: `src/lib/database/auth-schema.ts`
+- Drizzle config: `drizzle.config.ts`
+- Migrations: `drizzle/`
+- Local DB service: `docker-compose.yml`
+
+## API
+
+The project uses oRPC for server procedures and TanStack Query on the client.
+
+- Procedure context and auth guard: `src/lib/orpc/context.ts`
+- Router definitions: `src/lib/orpc/router.ts`
+- HTTP handler route: `src/routes/api/rpc/$.ts`
+- Client + query helpers: `src/lib/orpc/client.ts`
+
+Current stuff procedures:
+
+- `stuff.list` (public)
+- `stuff.create` (authenticated)
+- `stuff.update` (authenticated + owner check)
