@@ -18,6 +18,7 @@ import {
 
 type ProcedureArgs<TInput> = [TInput] extends [undefined] ? [] : [input: TInput]
 type InvalidateKey<TInput> = QueryKey | ((input: TInput) => QueryKey)
+type InvalidateScope = "self" | "domain"
 
 function getInput<TInput>(args: ProcedureArgs<TInput>) {
   return args[0] as TInput
@@ -27,8 +28,14 @@ function resolveInvalidateKey<TInput>(
   input: TInput,
   queryKey: QueryKey,
   invalidateKey: InvalidateKey<TInput> | undefined,
+  invalidateScope: InvalidateScope | undefined,
+  domainKey: QueryKey | undefined,
 ) {
   if (invalidateKey === undefined) {
+    if (invalidateScope === "domain" && domainKey !== undefined) {
+      return domainKey
+    }
+
     return queryKey
   }
 
@@ -40,15 +47,25 @@ function resolveInvalidateKey<TInput>(
 }
 
 interface QueryProcedureConfigWithInput<TInput, TOutput, TQueryKey extends QueryKey> {
-  key: (input: TInput) => TQueryKey
+  key?: (input: TInput) => TQueryKey
   queryFn: (input: TInput) => Promise<TOutput>
   invalidateKey?: InvalidateKey<TInput>
+  invalidateScope?: InvalidateScope
 }
 
 interface QueryProcedureConfigWithoutInput<TOutput, TQueryKey extends QueryKey> {
-  key: () => TQueryKey
+  key?: () => TQueryKey
   queryFn: () => Promise<TOutput>
   invalidateKey?: QueryKey
+  invalidateScope?: InvalidateScope
+}
+
+interface QueryProcedureInternalConfig<
+  TInput,
+  TOutput,
+  TQueryKey extends QueryKey,
+> extends QueryProcedureConfigWithInput<TInput, TOutput, TQueryKey> {
+  domainKey?: QueryKey
 }
 
 export interface QueryProcedure<TInput, TOutput, TQueryKey extends QueryKey> {
@@ -64,6 +81,7 @@ export interface QueryProcedure<TInput, TOutput, TQueryKey extends QueryKey> {
   useSuspenseQuery: (
     ...args: ProcedureArgs<TInput>
   ) => ReturnType<typeof useSuspenseQuery<TOutput, DefaultError, TOutput, TQueryKey>>
+  __internalConfig?: QueryProcedureInternalConfig<TInput, TOutput, TQueryKey>
 }
 
 export function createQueryProcedure<TOutput, TQueryKey extends QueryKey>(
@@ -75,27 +93,46 @@ export function createQueryProcedure<TInput, TOutput, TQueryKey extends QueryKey
 export function createQueryProcedure<TInput, TOutput, TQueryKey extends QueryKey>(
   config: QueryProcedureConfigWithInput<TInput, TOutput, TQueryKey>,
 ) {
+  const internalConfig = config as QueryProcedureInternalConfig<TInput, TOutput, TQueryKey>
+
+  function getQueryKey(input: TInput): TQueryKey {
+    if (internalConfig.key === undefined) {
+      throw new Error(
+        "Missing query key. Provide `key` in createQueryProcedure or compose via createProcedureDomain(domainName, procedures).",
+      )
+    }
+
+    return internalConfig.key(input)
+  }
+
   function getOptions(...args: ProcedureArgs<TInput>) {
     const input = getInput(args)
-    const queryKey = config.key(input)
+    const queryKey = getQueryKey(input)
 
     return queryOptions({
       queryKey,
-      queryFn: () => config.queryFn(input),
+      queryFn: () => internalConfig.queryFn(input),
     })
   }
 
   return {
     kind: "query",
-    key: (...args: ProcedureArgs<TInput>) => config.key(getInput(args)),
+    key: (...args: ProcedureArgs<TInput>) => getQueryKey(getInput(args)),
     invalidateKey: (...args: ProcedureArgs<TInput>) => {
       const input = getInput(args)
-      const queryKey = config.key(input)
-      return resolveInvalidateKey(input, queryKey, config.invalidateKey)
+      const queryKey = getQueryKey(input)
+      return resolveInvalidateKey(
+        input,
+        queryKey,
+        internalConfig.invalidateKey,
+        internalConfig.invalidateScope,
+        internalConfig.domainKey,
+      )
     },
     queryOptions: getOptions,
     useQuery: (...args: ProcedureArgs<TInput>) => useQuery(getOptions(...args)),
     useSuspenseQuery: (...args: ProcedureArgs<TInput>) => useSuspenseQuery(getOptions(...args)),
+    __internalConfig: internalConfig,
   } as QueryProcedure<TInput, TOutput, TQueryKey>
 }
 
@@ -123,6 +160,7 @@ export interface MutationProcedure<
       "mutationFn" | "mutationKey"
     >,
   ) => ReturnType<typeof useMutation<TOutput, TError, TInput, TContext>>
+  __internalConfig?: MutationProcedureConfig<TInput, TOutput, TMutationKey>
 }
 
 export function createMutationProcedure<
@@ -130,29 +168,31 @@ export function createMutationProcedure<
   TOutput,
   TMutationKey extends MutationKey | undefined = undefined,
 >(config: MutationProcedureConfig<TInput, TOutput, TMutationKey>) {
+  const internalConfig = config
+
   function getOptions<TError = DefaultError, TContext = unknown>(
     options?: Omit<
       UseMutationOptions<TOutput, TError, TInput, TContext>,
       "mutationFn" | "mutationKey"
     >,
   ) {
-    if (config.mutationKey === undefined) {
+    if (internalConfig.mutationKey === undefined) {
       return mutationOptions({
-        mutationFn: config.mutationFn,
+        mutationFn: internalConfig.mutationFn,
         ...options,
       })
     }
 
     return mutationOptions({
-      mutationFn: config.mutationFn,
-      mutationKey: config.mutationKey,
+      mutationFn: internalConfig.mutationFn,
+      mutationKey: internalConfig.mutationKey,
       ...options,
     })
   }
 
   return {
     kind: "mutation",
-    mutationKey: config.mutationKey,
+    mutationKey: internalConfig.mutationKey,
     mutationOptions: getOptions,
     useMutation: <TError = DefaultError, TContext = unknown>(
       options?: Omit<
@@ -160,6 +200,7 @@ export function createMutationProcedure<
         "mutationFn" | "mutationKey"
       >,
     ) => useMutation(getOptions(options)),
+    __internalConfig: internalConfig,
   } as MutationProcedure<TInput, TOutput, TMutationKey>
 }
 
@@ -220,10 +261,13 @@ interface AnyQueryProcedure {
   key: (...args: any[]) => any
   invalidateKey: (...args: any[]) => any
   queryOptions: (...args: any[]) => any
+  __internalConfig?: QueryProcedureInternalConfig<any, any, QueryKey>
 }
 
 interface AnyMutationProcedure {
   kind: "mutation"
+  mutationKey?: MutationKey
+  __internalConfig?: MutationProcedureConfig<any, any, MutationKey | undefined>
 }
 
 type AnyProcedure = AnyQueryProcedure | AnyMutationProcedure
@@ -240,9 +284,47 @@ type DomainUtils<TProcedures extends Record<string, AnyProcedure>> = {
     : never
 }
 
+function buildDerivedQueryKey(domainName: string, procedureName: string, input: unknown): QueryKey {
+  if (input === undefined) {
+    return [domainName, procedureName]
+  }
+
+  return [domainName, procedureName, input]
+}
+
+function buildDerivedMutationKey(domainName: string, procedureName: string): MutationKey {
+  return [domainName, procedureName]
+}
+
+function buildDomainKey(domainName: string): QueryKey {
+  return [domainName]
+}
+
 export function createProcedureDomain<const TProcedures extends Record<string, AnyProcedure>>(
+  domainName: string,
   procedures: TProcedures,
 ) {
+  for (const [procedureName, procedure] of Object.entries(procedures)) {
+    if (procedure.kind === "query") {
+      const internalConfig = procedure.__internalConfig
+      if (internalConfig !== undefined) {
+        if (internalConfig.key === undefined) {
+          internalConfig.key = ((input: unknown) =>
+            buildDerivedQueryKey(domainName, procedureName, input)) as (input: any) => QueryKey
+        }
+
+        internalConfig.domainKey = buildDomainKey(domainName)
+      }
+      continue
+    }
+
+    const internalConfig = procedure.__internalConfig
+    if (internalConfig !== undefined && internalConfig.mutationKey === undefined) {
+      internalConfig.mutationKey = buildDerivedMutationKey(domainName, procedureName)
+      procedure.mutationKey = internalConfig.mutationKey
+    }
+  }
+
   function createUtils(queryClient: QueryClient): DomainUtils<TProcedures> {
     const utilsEntries = Object.entries(procedures).flatMap(([procedureName, procedure]) => {
       if (procedure.kind !== "query") {
