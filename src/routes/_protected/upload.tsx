@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 
@@ -12,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { api } from "@/lib/api"
+import { orpc } from "@/lib/orpc"
 
 export const Route = createFileRoute("/_protected/upload")({
   component: UploadStuffPage,
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/_protected/upload")({
 
 function UploadStuffPage() {
   const navigate = useNavigate()
-  const utils = api.useUtils()
+  const queryClient = useQueryClient()
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const form = useForm({
@@ -33,16 +34,20 @@ function UploadStuffPage() {
     },
   })
 
-  const createStuffMutation = api.stuff.create.useMutation({
-    onError: () => {
-      setSubmitError("Could not save stuff. Please try again.")
-    },
-    onSuccess: async () => {
-      form.reset()
-      await utils.stuff.list.invalidate()
-      await navigate({ to: "/stuff" })
-    },
-  })
+  const createStuffMutation = useMutation(
+    orpc.stuff.create.mutationOptions({
+      onError: () => {
+        setSubmitError("Could not save stuff. Please try again.")
+      },
+      onSuccess: async () => {
+        form.reset()
+        await queryClient.invalidateQueries({
+          queryKey: orpc.stuff.key({ type: "query" }),
+        })
+        await navigate({ to: "/stuff" })
+      },
+    }),
+  )
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-4 p-6">

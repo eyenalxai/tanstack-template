@@ -1,5 +1,8 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useState } from "react"
+
+import type { ListStuffsOutput } from "@/server/stuff/stuff.schemas"
 
 import { EditStuffDialog } from "@/components/stuff/edit-stuff-dialog"
 import { Button } from "@/components/ui/button"
@@ -12,14 +15,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { api, createApiUtils } from "@/lib/api"
+import { orpc } from "@/lib/orpc"
 import { getSession } from "@/server/auth/session.functions"
 
-type StuffRow = NonNullable<ReturnType<typeof api.stuff.list.useQuery>["data"]>[number]
+type StuffRow = ListStuffsOutput[number]
 
 export const Route = createFileRoute("/stuff")({
   loader: async ({ context }) => {
-    await createApiUtils(context.queryClient).stuff.list.ensureData()
+    await context.queryClient.ensureQueryData(orpc.stuff.list.queryOptions())
     const session = await getSession()
 
     return {
@@ -31,41 +34,47 @@ export const Route = createFileRoute("/stuff")({
 
 function StuffPage() {
   const { viewerUserId } = Route.useLoaderData()
-  const utils = api.useUtils()
-  const { data: stuffRows } = api.stuff.list.useQuery()
+  const queryClient = useQueryClient()
+  const { data: stuffRows } = useQuery(orpc.stuff.list.queryOptions())
   const [editingStuff, setEditingStuff] = useState<StuffRow | null>(null)
   const [editError, setEditError] = useState<string | null>(null)
 
-  const updateStuffMutation = api.stuff.update.useMutation({
-    onMutate: (input) => {
-      const mutationInput = input as { uuid: string; description: string }
-      setEditError(null)
-      const previousStuffList = utils.stuff.list.getData()
+  const updateStuffMutation = useMutation(
+    orpc.stuff.update.mutationOptions({
+      onMutate: (input) => {
+        setEditError(null)
+        const previousStuffList = queryClient.getQueryData<ListStuffsOutput>(
+          orpc.stuff.list.queryKey(),
+        )
 
-      utils.stuff.list.setData((current) =>
-        current?.map((row) =>
-          row.uuid === mutationInput.uuid
-            ? { ...row, description: mutationInput.description }
-            : row,
-        ),
-      )
+        queryClient.setQueryData<ListStuffsOutput>(orpc.stuff.list.queryKey(), (current) =>
+          current?.map((row) =>
+            row.uuid === input.uuid ? { ...row, description: input.description } : row,
+          ),
+        )
 
-      return {
-        previousStuffList,
-      }
-    },
-    onError: (_error, _input, context) => {
-      utils.stuff.list.setData(() => context?.previousStuffList)
-      setEditError("Could not update stuff. Please try again.")
-    },
-    onSuccess: () => {
-      setEditingStuff(null)
-      setEditError(null)
-    },
-    onSettled: async () => {
-      await utils.stuff.list.invalidate()
-    },
-  })
+        return {
+          previousStuffList,
+        }
+      },
+      onError: (_error, _input, context) => {
+        queryClient.setQueryData<ListStuffsOutput>(
+          orpc.stuff.list.queryKey(),
+          context?.previousStuffList,
+        )
+        setEditError("Could not update stuff. Please try again.")
+      },
+      onSuccess: () => {
+        setEditingStuff(null)
+        setEditError(null)
+      },
+      onSettled: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: orpc.stuff.key({ type: "query" }),
+        })
+      },
+    }),
+  )
 
   const openEditDialog = (stuff: StuffRow) => {
     setEditingStuff(stuff)
