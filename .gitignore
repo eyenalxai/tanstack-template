@@ -3,6 +3,7 @@ node_modules
 
 # Local env files
 .env*
+!.env.example
 
 # Misc
 .DS_Store
