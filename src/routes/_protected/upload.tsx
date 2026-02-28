@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { orpc } from "@/lib/orpc"
+import { orpc } from "@/lib/orpc/client"
 
 export const Route = createFileRoute("/_protected/upload")({
   component: UploadStuffPage,

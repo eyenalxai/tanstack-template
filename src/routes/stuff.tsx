@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { orpc } from "@/lib/orpc"
+import { orpc } from "@/lib/orpc/client"
 import { getSession } from "@/server/auth/session.functions"
 
 type StuffRow = ListStuffsOutput[number]

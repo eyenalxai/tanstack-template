@@ -26,7 +26,7 @@ export const baseProcedure = os.$context<{ headers: Headers }>()
 export const publicProcedure = baseProcedure
 
 export const authorizedProcedure = publicProcedure.use(async ({ context, next }) => {
-  const sessionResult: unknown = await auth.api.getSession({
+  const sessionResult = await auth.api.getSession({
     headers: context.headers,
   })
 
