@@ -13,7 +13,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
+import { getFormErrorMessage } from "@/lib/form/error-message"
 import { orpc } from "@/lib/orpc/client"
+import { getOrpcErrorMessage } from "@/lib/orpc/error-message"
+import { createStuffSchema } from "@/server/stuff/stuff.schemas"
 
 const UploadStuffPage = () => {
   const navigate = useNavigate()
@@ -24,6 +27,9 @@ const UploadStuffPage = () => {
     defaultValues: {
       description: "",
     },
+    validators: {
+      onChange: createStuffSchema,
+    },
     onSubmit: ({ value }) => {
       setSubmitError(null)
       createStuffMutation.mutate(value)
@@ -32,8 +38,8 @@ const UploadStuffPage = () => {
 
   const createStuffMutation = useMutation(
     orpc.stuff.create.mutationOptions({
-      onError: () => {
-        setSubmitError("Could not save stuff. Please try again.")
+      onError: (error) => {
+        setSubmitError(getOrpcErrorMessage(error, "Could not save stuff. Please try again."))
       },
       onSuccess: async () => {
         form.reset()
@@ -61,22 +67,10 @@ const UploadStuffPage = () => {
               void form.handleSubmit()
             }}
           >
-            <form.Field
-              name="description"
-              validators={{
-                onChange: ({ value }) => {
-                  if (value.trim().length === 0) {
-                    return "Description is required"
-                  }
-                  if (value.length > 500) {
-                    return "Description must be 500 characters or less"
-                  }
-                  return undefined
-                },
-              }}
-            >
+            <form.Field name="description">
               {(field) => {
                 const fieldError = field.state.meta.errors[0]
+                const fieldErrorMessage = getFormErrorMessage(fieldError)
 
                 return (
                   <div className="flex flex-col gap-2">
@@ -92,21 +86,24 @@ const UploadStuffPage = () => {
                       rows={5}
                       value={field.state.value}
                     />
-                    {fieldError ? (
-                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
+                    {fieldErrorMessage ? (
+                      <p className="text-destructive-foreground text-xs">{fieldErrorMessage}</p>
                     ) : null}
                   </div>
                 )
               }}
             </form.Field>
 
-            {submitError !== undefined && submitError !== null && submitError !== "" ? (
+            {submitError ? (
               <p className="text-destructive-foreground text-sm">{submitError}</p>
             ) : null}
 
             <form.Subscribe selector={(state) => state.canSubmit}>
               {(canSubmit) => (
-                <Button disabled={!canSubmit || createStuffMutation.isPending} type="submit">
+                <Button
+                  disabled={canSubmit !== true || createStuffMutation.isPending === true}
+                  type="submit"
+                >
                   {createStuffMutation.isPending ? "Saving..." : "Save Stuff"}
                 </Button>
               )}

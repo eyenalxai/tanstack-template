@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { orpc } from "@/lib/orpc/client"
+import { getOrpcErrorMessage } from "@/lib/orpc/error-message"
 import { getSession } from "@/server/auth/session.functions"
 
 type StuffRow = ListStuffsOutput[number]
@@ -53,12 +54,12 @@ const StuffPage = () => {
           previousStuffList,
         }
       },
-      onError: (_error, _input, context) => {
+      onError: (error, _input, context) => {
         queryClient.setQueryData<ListStuffsOutput>(
           orpc.stuff.list.queryKey(),
           context?.previousStuffList,
         )
-        setEditError("Could not update stuff. Please try again.")
+        setEditError(getOrpcErrorMessage(error, "Could not update stuff. Please try again."))
       },
       onSuccess: () => {
         setEditingStuff(null)

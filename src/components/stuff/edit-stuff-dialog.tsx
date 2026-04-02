@@ -11,6 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { getFormErrorMessage } from "@/lib/form/error-message"
+import { createStuffSchema } from "@/server/stuff/stuff.schemas"
 
 type EditStuffDialogProps = {
   open: boolean
@@ -19,20 +21,6 @@ type EditStuffDialogProps = {
   errorMessage: string | null
   onOpenChange: (open: boolean) => void
   onSubmit: (description: string) => void
-}
-
-const validateDescription = (value: string) => {
-  const trimmedValue = value.trim()
-
-  if (trimmedValue.length === 0) {
-    return "Description is required"
-  }
-
-  if (trimmedValue.length > 500) {
-    return "Description must be 500 characters or less"
-  }
-
-  return undefined
 }
 
 export const EditStuffDialog = ({
@@ -48,11 +36,14 @@ export const EditStuffDialog = ({
     defaultValues: {
       description: initialDescription,
     },
+    validators: {
+      onChange: createStuffSchema,
+    },
     onSubmit: ({ value }) => {
       const trimmedDescription = value.description.trim()
 
       if (
-        validateDescription(trimmedDescription) !== undefined ||
+        !createStuffSchema.safeParse(value).success ||
         trimmedDescription === initialTrimmedDescription
       ) {
         return
@@ -78,14 +69,10 @@ export const EditStuffDialog = ({
               void form.handleSubmit()
             }}
           >
-            <form.Field
-              name="description"
-              validators={{
-                onChange: ({ value }) => validateDescription(value),
-              }}
-            >
+            <form.Field name="description">
               {(field) => {
                 const fieldError = field.state.meta.errors[0]
+                const fieldErrorMessage = getFormErrorMessage(fieldError)
 
                 return (
                   <div className="flex flex-col gap-2">
@@ -101,8 +88,8 @@ export const EditStuffDialog = ({
                       rows={5}
                       value={field.state.value}
                     />
-                    {fieldError ? (
-                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
+                    {fieldErrorMessage ? (
+                      <p className="text-destructive-foreground text-xs">{fieldErrorMessage}</p>
                     ) : null}
                   </div>
                 )
@@ -128,7 +115,10 @@ export const EditStuffDialog = ({
                   const hasChanges = description.trim() !== initialTrimmedDescription
 
                   return (
-                    <Button disabled={!canSubmit || !hasChanges || isPending} type="submit">
+                    <Button
+                      disabled={canSubmit !== true || hasChanges !== true || isPending === true}
+                      type="submit"
+                    >
                       {isPending ? "Saving..." : "Save Changes"}
                     </Button>
                   )

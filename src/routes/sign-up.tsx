@@ -1,7 +1,6 @@
 import { useForm } from "@tanstack/react-form"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
-import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -14,33 +13,14 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth/auth-client"
-
-const signUpSearchSchema = z.object({
-  redirect: z.string().optional(),
-})
+import { signUpCredentialsSchema } from "@/lib/form/auth-schemas"
+import { getFormErrorMessage } from "@/lib/form/error-message"
+import { authRedirectSearchSchema, getSafeRedirect } from "@/lib/navigation/safe-redirect"
 
 const deriveNameFromEmail = (email: string) => {
   const [localPart] = email.split("@")
   const trimmed = localPart?.trim()
   return trimmed !== undefined && trimmed !== null && trimmed.length > 0 ? trimmed : "user"
-}
-
-const getSafeRedirect = (redirect: string | undefined, fallback: string) => {
-  if (redirect === undefined || redirect === null || redirect === "") {
-    return fallback
-  }
-
-  if (redirect.startsWith("/")) {
-    return redirect
-  }
-
-  try {
-    const url = new URL(redirect)
-    const composedPath = `${url.pathname}${url.search}${url.hash}`
-    return composedPath.startsWith("/") ? composedPath : fallback
-  } catch {
-    return fallback
-  }
 }
 
 const SignUpPage = () => {
@@ -52,6 +32,9 @@ const SignUpPage = () => {
     defaultValues: {
       email: "",
       password: "",
+    },
+    validators: {
+      onChange: signUpCredentialsSchema,
     },
     onSubmit: async ({ value }) => {
       setSubmitError(null)
@@ -91,83 +74,61 @@ const SignUpPage = () => {
               void form.handleSubmit()
             }}
           >
-            <form.Field
-              name="email"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!value.trim()) {
-                    return "Email is required"
-                  }
-                  if (!value.includes("@")) {
-                    return "Please provide a valid email address"
-                  }
-                  return undefined
-                },
+            <form.Field name="email">
+              {(field) => {
+                const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="font-medium text-sm" htmlFor={field.name}>
+                      Email
+                    </label>
+                    <Input
+                      autoComplete="email"
+                      id={field.name}
+                      name={field.name}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      placeholder="you@example.com"
+                      type="email"
+                      value={field.state.value}
+                    />
+                    {fieldError ? (
+                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
+                    ) : null}
+                  </div>
+                )
               }}
-            >
-              {(field) => (
-                <div className="flex flex-col gap-2">
-                  <label className="font-medium text-sm" htmlFor={field.name}>
-                    Email
-                  </label>
-                  <Input
-                    autoComplete="email"
-                    id={field.name}
-                    name={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder="you@example.com"
-                    type="email"
-                    value={field.state.value}
-                  />
-                  {field.state.meta.errors[0] ? (
-                    <p className="text-destructive-foreground text-xs">
-                      {field.state.meta.errors[0]}
-                    </p>
-                  ) : null}
-                </div>
-              )}
             </form.Field>
 
-            <form.Field
-              name="password"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!value) {
-                    return "Password is required"
-                  }
-                  if (value.length < 8) {
-                    return "Password must be at least 8 characters"
-                  }
-                  return undefined
-                },
+            <form.Field name="password">
+              {(field) => {
+                const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="font-medium text-sm" htmlFor={field.name}>
+                      Password
+                    </label>
+                    <Input
+                      autoComplete="new-password"
+                      id={field.name}
+                      name={field.name}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      placeholder="At least 8 characters"
+                      type="password"
+                      value={field.state.value}
+                    />
+                    {fieldError ? (
+                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
+                    ) : null}
+                  </div>
+                )
               }}
-            >
-              {(field) => (
-                <div className="flex flex-col gap-2">
-                  <label className="font-medium text-sm" htmlFor={field.name}>
-                    Password
-                  </label>
-                  <Input
-                    autoComplete="new-password"
-                    id={field.name}
-                    name={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder="At least 8 characters"
-                    type="password"
-                    value={field.state.value}
-                  />
-                  {field.state.meta.errors[0] ? (
-                    <p className="text-destructive-foreground text-xs">
-                      {field.state.meta.errors[0]}
-                    </p>
-                  ) : null}
-                </div>
-              )}
             </form.Field>
 
-            {submitError !== undefined && submitError !== null && submitError !== "" ? (
+            {submitError ? (
               <p className="text-destructive-foreground text-sm">{submitError}</p>
             ) : null}
 
@@ -194,6 +155,6 @@ const SignUpPage = () => {
 }
 
 export const Route = createFileRoute("/sign-up")({
-  validateSearch: signUpSearchSchema,
+  validateSearch: authRedirectSearchSchema,
   component: SignUpPage,
 })

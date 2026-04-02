@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-const stuffDescriptionSchema = z
+export const stuffDescriptionSchema = z
   .string()
   .trim()
   .min(1, "Description is required")
