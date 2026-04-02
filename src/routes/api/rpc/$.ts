@@ -3,9 +3,9 @@ import { RPCHandler } from "@orpc/server/fetch"
 import { createFileRoute } from "@tanstack/react-router"
 
 import { db } from "@/lib/database/client"
-import { router } from "@/lib/orpc/router"
+import { procedures } from "@/lib/orpc/procedures"
 
-const handler = new RPCHandler(router, {
+const handler = new RPCHandler(procedures, {
   interceptors: [
     onError((error) => {
       console.error(error)

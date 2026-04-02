@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useState } from "react"
 
-import type { ListStuffsOutput } from "@/server/stuff/stuff.schemas"
+import type { ListStuffsOutput } from "@/lib/stuff/feed"
 
 import { EditStuffDialog } from "@/components/stuff/edit-stuff-dialog"
 import { Button } from "@/components/ui/button"
@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/table"
 import { toastManager } from "@/components/ui/toast"
 import { orpc } from "@/lib/orpc/client"
-import { getOrpcErrorMessage } from "@/lib/orpc/error-message"
-import { getSession } from "@/server/auth/session.functions"
+import { getOrpcErrorMessage } from "@/lib/rpc-errors"
+import { getSession } from "@/server/auth/get-session"
 
 type StuffRow = ListStuffsOutput[number]
 

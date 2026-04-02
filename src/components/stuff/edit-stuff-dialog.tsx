@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form"
 
+import { DescriptionField } from "@/components/stuff/description-field"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,9 +11,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { getFormErrorMessage } from "@/lib/form/error-message"
-import { createStuffSchema } from "@/server/stuff/stuff.schemas"
+import { createStuffSchema } from "@/lib/stuff/forms"
 
 type EditStuffDialogProps = {
   open: boolean
@@ -71,30 +70,15 @@ export const EditStuffDialog = ({
             }}
           >
             <form.Field name="description">
-              {(field) => {
-                const fieldError = field.state.meta.errors[0]
-                const fieldErrorMessage = getFormErrorMessage(fieldError)
-
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="font-medium text-sm" htmlFor={field.name}>
-                      Description
-                    </label>
-                    <Textarea
-                      id={field.name}
-                      name={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(event.target.value)}
-                      placeholder="Write some stuff..."
-                      rows={5}
-                      value={field.state.value}
-                    />
-                    {fieldErrorMessage ? (
-                      <p className="text-destructive-foreground text-xs">{fieldErrorMessage}</p>
-                    ) : null}
-                  </div>
-                )
-              }}
+              {(field) => (
+                <DescriptionField
+                  error={field.state.meta.errors[0]}
+                  id={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={(v) => field.handleChange(v)}
+                  value={field.state.value}
+                />
+              )}
             </form.Field>
 
             <DialogFooter variant="bare">

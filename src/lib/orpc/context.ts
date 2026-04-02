@@ -1,7 +1,7 @@
 import { ORPCError, os } from "@orpc/server"
 import { z } from "zod"
 
-import { auth } from "@/lib/auth/auth"
+import { auth } from "@/lib/auth/better-auth"
 import { db } from "@/lib/database/client"
 
 const authSessionSchema = z.object({

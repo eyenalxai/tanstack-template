@@ -1,13 +1,11 @@
 import { ORPCError } from "@orpc/server"
 
 import { authorizedProcedure, publicProcedure } from "@/lib/orpc/context"
-import { createStuff, listStuffs, updateStuff } from "@/server/stuff/stuff.functions"
-import {
-  createStuffSchema,
-  listStuffsOutputSchema,
-  stuffSchema,
-  updateStuffSchema,
-} from "@/server/stuff/stuff.schemas"
+import { listStuffsOutputSchema, stuffSchema } from "@/lib/stuff/feed"
+import { createStuffSchema, updateStuffSchema } from "@/lib/stuff/forms"
+import { createStuff } from "@/server/stuff/create-stuff"
+import { listStuffs } from "@/server/stuff/list-stuff"
+import { updateStuff } from "@/server/stuff/update-stuff"
 
 const listStuffProcedure = publicProcedure
   .output(listStuffsOutputSchema)
@@ -37,7 +35,7 @@ const updateStuffProcedure = authorizedProcedure
     return updatedStuff
   })
 
-export const router = {
+export const procedures = {
   stuff: {
     list: listStuffProcedure,
     create: createStuffProcedure,
@@ -45,4 +43,4 @@ export const router = {
   },
 }
 
-export type AppRouter = typeof router
+export type AppRouter = typeof procedures

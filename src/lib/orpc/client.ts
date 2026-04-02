@@ -7,14 +7,14 @@ import { createTanstackQueryUtils } from "@orpc/tanstack-query"
 import { createIsomorphicFn } from "@tanstack/react-start"
 import { getRequest } from "@tanstack/react-start/server"
 
-import type { AppRouter } from "@/lib/orpc/router"
+import type { AppRouter } from "@/lib/orpc/procedures"
 
 import { db } from "@/lib/database/client"
-import { router } from "@/lib/orpc/router"
+import { procedures } from "@/lib/orpc/procedures"
 
 const getORPCClient = createIsomorphicFn()
   .server(() =>
-    createRouterClient(router, {
+    createRouterClient(procedures, {
       context: () => ({
         db,
         headers: getRequest().headers,

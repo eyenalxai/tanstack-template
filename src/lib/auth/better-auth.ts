@@ -2,9 +2,9 @@ import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { tanstackStartCookies } from "better-auth/tanstack-start"
 
-import * as authSchema from "@/lib/database/auth-schema"
+import * as betterAuthSchema from "@/lib/database/better-auth"
 import { db } from "@/lib/database/client"
-import * as schema from "@/lib/database/schema"
+import * as stuffsSchema from "@/lib/database/stuffs"
 import { serverEnv } from "@/lib/env/server-env"
 
 export const auth = betterAuth({
@@ -14,7 +14,7 @@ export const auth = betterAuth({
   },
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema: { ...schema, ...authSchema },
+    schema: { ...stuffsSchema, ...betterAuthSchema },
     usePlural: true,
   }),
   emailAndPassword: {

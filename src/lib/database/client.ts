@@ -1,8 +1,8 @@
 import { drizzle } from "drizzle-orm/node-postgres"
 import { Pool } from "pg"
 
-import * as authSchema from "@/lib/database/auth-schema"
-import * as schema from "@/lib/database/schema"
+import * as betterAuthSchema from "@/lib/database/better-auth"
+import * as stuffsSchema from "@/lib/database/stuffs"
 import { serverEnv } from "@/lib/env/server-env"
 
 const pool = new Pool({
@@ -12,7 +12,7 @@ const pool = new Pool({
 export const createClient = () => {
   return drizzle({
     client: pool,
-    schema: { ...schema, ...authSchema },
+    schema: { ...stuffsSchema, ...betterAuthSchema },
   })
 }
 

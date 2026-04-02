@@ -6,7 +6,7 @@
     "build": "bun --bun vite build",
     "start": "bun --bun vite preview --host",
     "check": "tsr generate && oxfmt && oxlint --type-aware --fix && tsc --noEmit --pretty",
-    "auth:generate": "dotenvx run -f .env.local -- better-auth generate --config src/lib/auth/auth.ts --output src/lib/database/auth-schema.ts",
+    "auth:generate": "dotenvx run -f .env.local -- better-auth generate --config src/lib/auth/better-auth.ts --output src/lib/database/better-auth.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:migrate-local": "dotenvx run -f .env.local -- drizzle-kit migrate"

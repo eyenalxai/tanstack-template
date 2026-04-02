@@ -1,13 +1,13 @@
 import { relations, sql } from "drizzle-orm"
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
 
-import { users } from "@/lib/database/auth-schema"
+import { users } from "@/lib/database/better-auth"
 
 export const stuffs = pgTable("stuffs", {
   uuid: uuid("uuid")
     .default(sql`gen_random_uuid()`)
     .primaryKey(),
-  userId: text("userId")
+  userId: text("user_id")
     .notNull()
     .references(() => users.id),
   description: text("description").notNull(),

@@ -11,7 +11,11 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     tsConfigPaths(),
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        entry: "./app-router.tsx",
+      },
+    }),
     // react's vite plugin must come after start's vite plugin
     viteReact(),
   ],

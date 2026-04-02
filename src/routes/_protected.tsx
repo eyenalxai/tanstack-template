@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 
-import { getSession } from "@/server/auth/session.functions"
+import { getSession } from "@/server/auth/get-session"
 
 const ProtectedLayout = () => {
   return <Outlet />

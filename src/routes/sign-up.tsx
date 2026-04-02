@@ -13,9 +13,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { toastManager } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth/auth-client"
-import { signUpCredentialsSchema } from "@/lib/form/auth-schemas"
-import { getFormErrorMessage } from "@/lib/form/error-message"
-import { authRedirectSearchSchema, getSafeRedirect } from "@/lib/navigation/safe-redirect"
+import { signUpCredentialsSchema } from "@/lib/auth/forms"
+import { authRedirectSearchSchema, getSafeRedirect } from "@/lib/auth/redirect"
+import { getFormErrorMessage } from "@/lib/form-errors"
 
 const deriveNameFromEmail = (email: string) => {
   const [localPart] = email.split("@")
