@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 
-interface EditStuffDialogProps {
+type EditStuffDialogProps = {
   open: boolean
   initialDescription: string
   isPending: boolean
@@ -21,7 +21,7 @@ interface EditStuffDialogProps {
   onSubmit: (description: string) => void
 }
 
-function validateDescription(value: string) {
+const validateDescription = (value: string) => {
   const trimmedValue = value.trim()
 
   if (trimmedValue.length === 0) {
@@ -35,14 +35,14 @@ function validateDescription(value: string) {
   return undefined
 }
 
-export function EditStuffDialog({
+export const EditStuffDialog = ({
   open,
   initialDescription,
   isPending,
   errorMessage,
   onOpenChange,
   onSubmit,
-}: EditStuffDialogProps) {
+}: EditStuffDialogProps) => {
   const initialTrimmedDescription = initialDescription.trim()
   const form = useForm({
     defaultValues: {

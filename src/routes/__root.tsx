@@ -8,6 +8,30 @@ import { Providers } from "@/components/providers"
 
 import appCss from "../styles.css?url"
 
+const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => {
+  return (
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <Providers attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </Providers>
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+
+const RootComponent = () => {
+  return (
+    <RootDocument>
+      <Outlet />
+    </RootDocument>
+  )
+}
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
@@ -28,27 +52,3 @@ export const Route = createRootRouteWithContext<{
   }),
   component: RootComponent,
 })
-
-function RootComponent() {
-  return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
-  )
-}
-
-function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  return (
-    <html>
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <Providers attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </Providers>
-        <Scripts />
-      </body>
-    </html>
-  )
-}

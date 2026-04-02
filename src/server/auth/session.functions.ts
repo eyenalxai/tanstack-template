@@ -3,7 +3,7 @@ import { getRequest, setResponseStatus } from "@tanstack/react-start/server"
 
 import { auth } from "@/lib/auth/auth"
 
-async function readSession() {
+const readSession = async () => {
   return auth.api.getSession({ headers: getRequest().headers })
 }
 

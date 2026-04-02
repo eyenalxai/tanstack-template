@@ -9,7 +9,7 @@ const pool = new Pool({
   connectionString: serverEnv.DATABASE_URL,
 })
 
-export function createClient() {
+export const createClient = () => {
   return drizzle({
     client: pool,
     schema: { ...schema, ...authSchema },

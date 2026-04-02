@@ -48,7 +48,7 @@ const buttonVariants = cva(
   },
 )
 
-interface ButtonProps extends useRender.ComponentProps<"button"> {
+type ButtonProps = useRender.ComponentProps<"button"> & {
   variant?: VariantProps<typeof buttonVariants>["variant"]
   size?: VariantProps<typeof buttonVariants>["size"]
 }

@@ -2,6 +2,10 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 
 import { getSession } from "@/server/auth/session.functions"
 
+const ProtectedLayout = () => {
+  return <Outlet />
+}
+
 export const Route = createFileRoute("/_protected")({
   beforeLoad: async ({ location }) => {
     const session = await getSession()
@@ -20,7 +24,3 @@ export const Route = createFileRoute("/_protected")({
   },
   component: ProtectedLayout,
 })
-
-function ProtectedLayout() {
-  return <Outlet />
-}

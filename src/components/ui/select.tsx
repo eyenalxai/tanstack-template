@@ -30,7 +30,7 @@ const selectTriggerVariants = cva(
 
 const selectTriggerIconClassName = "-me-1 size-4.5 opacity-80 sm:size-4"
 
-interface SelectButtonProps extends useRender.ComponentProps<"button"> {
+type SelectButtonProps = useRender.ComponentProps<"button"> & {
   size?: VariantProps<typeof selectTriggerVariants>["size"]
 }
 

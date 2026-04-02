@@ -5,7 +5,7 @@ import { getQueryClient } from "@/lib/query-client"
 
 import { routeTree } from "./routeTree.gen"
 
-export function getRouter() {
+export const getRouter = () => {
   const queryClient = getQueryClient()
   const router = createRouter({
     routeTree,

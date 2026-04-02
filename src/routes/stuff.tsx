@@ -20,19 +20,15 @@ import { getSession } from "@/server/auth/session.functions"
 
 type StuffRow = ListStuffsOutput[number]
 
-export const Route = createFileRoute("/stuff")({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(orpc.stuff.list.queryOptions())
-    const session = await getSession()
+const formatDate = (value: Date | string) => {
+  const date = value instanceof Date ? value : new Date(value)
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date)
+}
 
-    return {
-      viewerUserId: session?.user.id ?? null,
-    }
-  },
-  component: StuffPage,
-})
-
-function StuffPage() {
+const StuffPage = () => {
   const { viewerUserId } = Route.useLoaderData()
   const queryClient = useQueryClient()
   const { data: stuffRows } = useQuery(orpc.stuff.list.queryOptions())
@@ -167,10 +163,14 @@ function StuffPage() {
   )
 }
 
-function formatDate(value: Date | string) {
-  const date = value instanceof Date ? value : new Date(value)
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date)
-}
+export const Route = createFileRoute("/stuff")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(orpc.stuff.list.queryOptions())
+    const session = await getSession()
+
+    return {
+      viewerUserId: session?.user.id ?? null,
+    }
+  },
+  component: StuffPage,
+})

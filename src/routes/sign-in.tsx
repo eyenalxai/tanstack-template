@@ -19,12 +19,25 @@ const signInSearchSchema = z.object({
   redirect: z.string().optional(),
 })
 
-export const Route = createFileRoute("/sign-in")({
-  validateSearch: signInSearchSchema,
-  component: SignInPage,
-})
+const getSafeRedirect = (redirect: string | undefined, fallback: string) => {
+  if (redirect === undefined || redirect === null || redirect === "") {
+    return fallback
+  }
 
-function SignInPage() {
+  if (redirect.startsWith("/")) {
+    return redirect
+  }
+
+  try {
+    const url = new URL(redirect)
+    const composedPath = `${url.pathname}${url.search}${url.hash}`
+    return composedPath.startsWith("/") ? composedPath : fallback
+  } catch {
+    return fallback
+  }
+}
+
+const SignInPage = () => {
   const navigate = useNavigate()
   const search = Route.useSearch()
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -169,20 +182,7 @@ function SignInPage() {
   )
 }
 
-function getSafeRedirect(redirect: string | undefined, fallback: string) {
-  if (redirect === undefined || redirect === null || redirect === "") {
-    return fallback
-  }
-
-  if (redirect.startsWith("/")) {
-    return redirect
-  }
-
-  try {
-    const url = new URL(redirect)
-    const composedPath = `${url.pathname}${url.search}${url.hash}`
-    return composedPath.startsWith("/") ? composedPath : fallback
-  } catch {
-    return fallback
-  }
-}
+export const Route = createFileRoute("/sign-in")({
+  validateSearch: signInSearchSchema,
+  component: SignInPage,
+})

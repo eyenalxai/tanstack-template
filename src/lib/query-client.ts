@@ -10,11 +10,11 @@ type SerializedQueryData = {
 
 const serializer = new StandardRPCJsonSerializer()
 
-function isUnknownArray(value: unknown): value is unknown[] {
+const isUnknownArray = (value: unknown): value is unknown[] => {
   return Array.isArray(value)
 }
 
-function isSerializedMetaItem(value: unknown): value is StandardRPCJsonSerializedMetaItem {
+const isSerializedMetaItem = (value: unknown): value is StandardRPCJsonSerializedMetaItem => {
   if (!isUnknownArray(value) || value.length === 0) {
     return false
   }
@@ -29,7 +29,7 @@ function isSerializedMetaItem(value: unknown): value is StandardRPCJsonSerialize
     .every((segment) => typeof segment === "string" || typeof segment === "number")
 }
 
-function isSerializedQueryData(value: unknown): value is SerializedQueryData {
+const isSerializedQueryData = (value: unknown): value is SerializedQueryData => {
   if (typeof value !== "object" || value === null) {
     return false
   }
@@ -42,7 +42,7 @@ function isSerializedQueryData(value: unknown): value is SerializedQueryData {
   return Array.isArray(meta) && meta.every(isSerializedMetaItem)
 }
 
-function makeQueryClient() {
+const makeQueryClient = () => {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -75,7 +75,7 @@ function makeQueryClient() {
 
 let browserQueryClient: QueryClient | undefined
 
-export function getQueryClient() {
+export const getQueryClient = () => {
   if (typeof window === "undefined") {
     return makeQueryClient()
   }

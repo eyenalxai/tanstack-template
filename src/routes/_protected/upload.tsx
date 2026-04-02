@@ -15,11 +15,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { orpc } from "@/lib/orpc/client"
 
-export const Route = createFileRoute("/_protected/upload")({
-  component: UploadStuffPage,
-})
-
-function UploadStuffPage() {
+const UploadStuffPage = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -126,3 +122,7 @@ function UploadStuffPage() {
     </main>
   )
 }
+
+export const Route = createFileRoute("/_protected/upload")({
+  component: UploadStuffPage,
+})

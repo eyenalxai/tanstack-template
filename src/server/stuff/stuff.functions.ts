@@ -5,7 +5,7 @@ import type { CreateStuffInput, UpdateStuffInput } from "@/server/stuff/stuff.sc
 
 import { stuffs } from "@/lib/database/schema"
 
-export function listStuffs(tx: Transaction) {
+export const listStuffs = (tx: Transaction) => {
   return tx.query.stuffs.findMany({
     orderBy: (table, { desc }) => [desc(table.createdAt)],
     with: {
@@ -20,7 +20,7 @@ export function listStuffs(tx: Transaction) {
   })
 }
 
-export async function createStuff(tx: Transaction, input: CreateStuffInput, userId: string) {
+export const createStuff = async (tx: Transaction, input: CreateStuffInput, userId: string) => {
   const [newStuff] = await tx
     .insert(stuffs)
     .values({
@@ -36,7 +36,7 @@ export async function createStuff(tx: Transaction, input: CreateStuffInput, user
   return newStuff
 }
 
-export async function updateStuff(tx: Transaction, input: UpdateStuffInput, userId: string) {
+export const updateStuff = async (tx: Transaction, input: UpdateStuffInput, userId: string) => {
   const [updatedStuff] = await tx
     .update(stuffs)
     .set({

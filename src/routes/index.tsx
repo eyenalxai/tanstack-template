@@ -3,11 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export const Route = createFileRoute("/")({
-  component: Home,
-})
-
-function Home() {
+const Home = () => {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-6">
       <Card>
@@ -31,3 +27,7 @@ function Home() {
     </main>
   )
 }
+
+export const Route = createFileRoute("/")({
+  component: Home,
+})

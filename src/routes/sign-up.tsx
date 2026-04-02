@@ -19,12 +19,31 @@ const signUpSearchSchema = z.object({
   redirect: z.string().optional(),
 })
 
-export const Route = createFileRoute("/sign-up")({
-  validateSearch: signUpSearchSchema,
-  component: SignUpPage,
-})
+const deriveNameFromEmail = (email: string) => {
+  const [localPart] = email.split("@")
+  const trimmed = localPart?.trim()
+  return trimmed !== undefined && trimmed !== null && trimmed.length > 0 ? trimmed : "user"
+}
 
-function SignUpPage() {
+const getSafeRedirect = (redirect: string | undefined, fallback: string) => {
+  if (redirect === undefined || redirect === null || redirect === "") {
+    return fallback
+  }
+
+  if (redirect.startsWith("/")) {
+    return redirect
+  }
+
+  try {
+    const url = new URL(redirect)
+    const composedPath = `${url.pathname}${url.search}${url.hash}`
+    return composedPath.startsWith("/") ? composedPath : fallback
+  } catch {
+    return fallback
+  }
+}
+
+const SignUpPage = () => {
   const navigate = useNavigate()
   const search = Route.useSearch()
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -174,26 +193,7 @@ function SignUpPage() {
   )
 }
 
-function deriveNameFromEmail(email: string) {
-  const [localPart] = email.split("@")
-  const trimmed = localPart?.trim()
-  return trimmed !== undefined && trimmed !== null && trimmed.length > 0 ? trimmed : "user"
-}
-
-function getSafeRedirect(redirect: string | undefined, fallback: string) {
-  if (redirect === undefined || redirect === null || redirect === "") {
-    return fallback
-  }
-
-  if (redirect.startsWith("/")) {
-    return redirect
-  }
-
-  try {
-    const url = new URL(redirect)
-    const composedPath = `${url.pathname}${url.search}${url.hash}`
-    return composedPath.startsWith("/") ? composedPath : fallback
-  } catch {
-    return fallback
-  }
-}
+export const Route = createFileRoute("/sign-up")({
+  validateSearch: signUpSearchSchema,
+  component: SignUpPage,
+})

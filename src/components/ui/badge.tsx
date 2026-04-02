@@ -35,7 +35,7 @@ const badgeVariants = cva(
   },
 )
 
-interface BadgeProps extends useRender.ComponentProps<"span"> {
+type BadgeProps = useRender.ComponentProps<"span"> & {
   variant?: VariantProps<typeof badgeVariants>["variant"]
   size?: VariantProps<typeof badgeVariants>["size"]
 }

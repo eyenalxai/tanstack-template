@@ -31,7 +31,7 @@ type ToastPosition =
   | "bottom-center"
   | "bottom-right"
 
-interface ToastProviderProps extends Toast.Provider.Props {
+type ToastProviderProps = Toast.Provider.Props & {
   position?: ToastPosition
 }
 
