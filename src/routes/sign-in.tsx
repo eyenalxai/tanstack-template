@@ -1,6 +1,5 @@
 import { useForm } from "@tanstack/react-form"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -12,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { toastManager } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth/auth-client"
 import { signInCredentialsSchema } from "@/lib/form/auth-schemas"
 import { getFormErrorMessage } from "@/lib/form/error-message"
@@ -20,7 +20,6 @@ import { authRedirectSearchSchema, getSafeRedirect } from "@/lib/navigation/safe
 const SignInPage = () => {
   const navigate = useNavigate()
   const search = Route.useSearch()
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -31,15 +30,18 @@ const SignInPage = () => {
       onChange: signInCredentialsSchema,
     },
     onSubmit: async ({ value }) => {
-      setSubmitError(null)
-
       const result = await authClient.signIn.email({
         email: value.email,
         password: value.password,
       })
 
       if (result.error) {
-        setSubmitError(result.error.message ?? "Invalid email or password.")
+        toastManager.add({
+          type: "error",
+          title: "Sign in failed",
+          description: result.error.message ?? "Invalid email or password.",
+          priority: "high",
+        })
         return
       }
 
@@ -63,6 +65,9 @@ const SignInPage = () => {
             onSubmit={(event) => {
               event.preventDefault()
               event.stopPropagation()
+              if (form.state.isSubmitting) {
+                return
+              }
               void form.handleSubmit()
             }}
           >
@@ -120,15 +125,9 @@ const SignInPage = () => {
               }}
             </form.Field>
 
-            {submitError ? (
-              <p className="text-destructive-foreground text-sm">{submitError}</p>
-            ) : null}
-
-            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-              {([canSubmit, isSubmitting]) => (
-                <Button disabled={canSubmit !== true || isSubmitting === true} type="submit">
-                  {isSubmitting === true ? "Signing in..." : "Sign In"}
-                </Button>
+            <form.Subscribe selector={(state) => state.isSubmitting}>
+              {(isSubmitting) => (
+                <Button type="submit">{isSubmitting === true ? "Signing in..." : "Sign In"}</Button>
               )}
             </form.Subscribe>
           </form>

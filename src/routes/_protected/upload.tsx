@@ -1,7 +1,6 @@
 import { useForm } from "@tanstack/react-form"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
+import { toastManager } from "@/components/ui/toast"
 import { getFormErrorMessage } from "@/lib/form/error-message"
 import { orpc } from "@/lib/orpc/client"
 import { getOrpcErrorMessage } from "@/lib/orpc/error-message"
@@ -21,7 +21,6 @@ import { createStuffSchema } from "@/server/stuff/stuff.schemas"
 const UploadStuffPage = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -31,7 +30,10 @@ const UploadStuffPage = () => {
       onChange: createStuffSchema,
     },
     onSubmit: ({ value }) => {
-      setSubmitError(null)
+      if (createStuffMutation.isPending) {
+        return
+      }
+
       createStuffMutation.mutate(value)
     },
   })
@@ -39,7 +41,12 @@ const UploadStuffPage = () => {
   const createStuffMutation = useMutation(
     orpc.stuff.create.mutationOptions({
       onError: (error) => {
-        setSubmitError(getOrpcErrorMessage(error, "Could not save stuff. Please try again."))
+        toastManager.add({
+          type: "error",
+          title: "Save failed",
+          description: getOrpcErrorMessage(error, "Could not save stuff. Please try again."),
+          priority: "high",
+        })
       },
       onSuccess: async () => {
         form.reset()
@@ -64,6 +71,9 @@ const UploadStuffPage = () => {
             onSubmit={(event) => {
               event.preventDefault()
               event.stopPropagation()
+              if (createStuffMutation.isPending) {
+                return
+              }
               void form.handleSubmit()
             }}
           >
@@ -94,20 +104,9 @@ const UploadStuffPage = () => {
               }}
             </form.Field>
 
-            {submitError ? (
-              <p className="text-destructive-foreground text-sm">{submitError}</p>
-            ) : null}
-
-            <form.Subscribe selector={(state) => state.canSubmit}>
-              {(canSubmit) => (
-                <Button
-                  disabled={canSubmit !== true || createStuffMutation.isPending === true}
-                  type="submit"
-                >
-                  {createStuffMutation.isPending ? "Saving..." : "Save Stuff"}
-                </Button>
-              )}
-            </form.Subscribe>
+            <Button type="submit">
+              {createStuffMutation.isPending ? "Saving..." : "Save Stuff"}
+            </Button>
           </form>
         </CardContent>
         <CardFooter>

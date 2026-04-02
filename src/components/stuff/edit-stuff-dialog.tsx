@@ -18,7 +18,6 @@ type EditStuffDialogProps = {
   open: boolean
   initialDescription: string
   isPending: boolean
-  errorMessage: string | null
   onOpenChange: (open: boolean) => void
   onSubmit: (description: string) => void
 }
@@ -27,7 +26,6 @@ export const EditStuffDialog = ({
   open,
   initialDescription,
   isPending,
-  errorMessage,
   onOpenChange,
   onSubmit,
 }: EditStuffDialogProps) => {
@@ -66,6 +64,9 @@ export const EditStuffDialog = ({
             onSubmit={(event) => {
               event.preventDefault()
               event.stopPropagation()
+              if (isPending) {
+                return
+              }
               void form.handleSubmit()
             }}
           >
@@ -96,34 +97,11 @@ export const EditStuffDialog = ({
               }}
             </form.Field>
 
-            {errorMessage ? (
-              <p className="text-destructive-foreground text-sm">{errorMessage}</p>
-            ) : null}
-
             <DialogFooter variant="bare">
               <Button onClick={() => onOpenChange(false)} type="button" variant="outline">
                 Cancel
               </Button>
-
-              <form.Subscribe
-                selector={(state) => ({
-                  canSubmit: state.canSubmit,
-                  description: state.values.description,
-                })}
-              >
-                {({ canSubmit, description }) => {
-                  const hasChanges = description.trim() !== initialTrimmedDescription
-
-                  return (
-                    <Button
-                      disabled={canSubmit !== true || hasChanges !== true || isPending === true}
-                      type="submit"
-                    >
-                      {isPending ? "Saving..." : "Save Changes"}
-                    </Button>
-                  )
-                }}
-              </form.Subscribe>
+              <Button type="submit">{isPending ? "Saving..." : "Save Changes"}</Button>
             </DialogFooter>
           </form>
         </DialogPanel>

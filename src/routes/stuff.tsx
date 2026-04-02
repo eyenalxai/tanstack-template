@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { toastManager } from "@/components/ui/toast"
 import { orpc } from "@/lib/orpc/client"
 import { getOrpcErrorMessage } from "@/lib/orpc/error-message"
 import { getSession } from "@/server/auth/session.functions"
@@ -34,12 +35,10 @@ const StuffPage = () => {
   const queryClient = useQueryClient()
   const { data: stuffRows } = useQuery(orpc.stuff.list.queryOptions())
   const [editingStuff, setEditingStuff] = useState<StuffRow | null>(null)
-  const [editError, setEditError] = useState<string | null>(null)
 
   const updateStuffMutation = useMutation(
     orpc.stuff.update.mutationOptions({
       onMutate: (input) => {
-        setEditError(null)
         const previousStuffList = queryClient.getQueryData<ListStuffsOutput>(
           orpc.stuff.list.queryKey(),
         )
@@ -59,11 +58,15 @@ const StuffPage = () => {
           orpc.stuff.list.queryKey(),
           context?.previousStuffList,
         )
-        setEditError(getOrpcErrorMessage(error, "Could not update stuff. Please try again."))
+        toastManager.add({
+          type: "error",
+          title: "Update failed",
+          description: getOrpcErrorMessage(error, "Could not update stuff. Please try again."),
+          priority: "high",
+        })
       },
       onSuccess: () => {
         setEditingStuff(null)
-        setEditError(null)
       },
       onSettled: async () => {
         await queryClient.invalidateQueries({
@@ -75,7 +78,6 @@ const StuffPage = () => {
 
   const openEditDialog = (stuff: StuffRow) => {
     setEditingStuff(stuff)
-    setEditError(null)
   }
 
   const closeEditDialog = () => {
@@ -84,7 +86,6 @@ const StuffPage = () => {
     }
 
     setEditingStuff(null)
-    setEditError(null)
   }
 
   return (
@@ -143,7 +144,6 @@ const StuffPage = () => {
       {editingStuff ? (
         <EditStuffDialog
           key={editingStuff.uuid}
-          errorMessage={editError}
           initialDescription={editingStuff.description}
           isPending={updateStuffMutation.isPending}
           onOpenChange={(open) => {

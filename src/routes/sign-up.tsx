@@ -1,6 +1,5 @@
 import { useForm } from "@tanstack/react-form"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -12,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { toastManager } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth/auth-client"
 import { signUpCredentialsSchema } from "@/lib/form/auth-schemas"
 import { getFormErrorMessage } from "@/lib/form/error-message"
@@ -26,7 +26,6 @@ const deriveNameFromEmail = (email: string) => {
 const SignUpPage = () => {
   const navigate = useNavigate()
   const search = Route.useSearch()
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -37,8 +36,6 @@ const SignUpPage = () => {
       onChange: signUpCredentialsSchema,
     },
     onSubmit: async ({ value }) => {
-      setSubmitError(null)
-
       const derivedName = deriveNameFromEmail(value.email)
       const result = await authClient.signUp.email({
         email: value.email,
@@ -47,7 +44,12 @@ const SignUpPage = () => {
       })
 
       if (result.error) {
-        setSubmitError(result.error.message ?? "Could not create account.")
+        toastManager.add({
+          type: "error",
+          title: "Sign up failed",
+          description: result.error.message ?? "Could not create account.",
+          priority: "high",
+        })
         return
       }
 
@@ -71,6 +73,9 @@ const SignUpPage = () => {
             onSubmit={(event) => {
               event.preventDefault()
               event.stopPropagation()
+              if (form.state.isSubmitting) {
+                return
+              }
               void form.handleSubmit()
             }}
           >
@@ -128,13 +133,9 @@ const SignUpPage = () => {
               }}
             </form.Field>
 
-            {submitError ? (
-              <p className="text-destructive-foreground text-sm">{submitError}</p>
-            ) : null}
-
-            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-              {([canSubmit, isSubmitting]) => (
-                <Button disabled={canSubmit !== true || isSubmitting === true} type="submit">
+            <form.Subscribe selector={(state) => state.isSubmitting}>
+              {(isSubmitting) => (
+                <Button type="submit">
                   {isSubmitting === true ? "Creating account..." : "Sign Up"}
                 </Button>
               )}
