@@ -8,7 +8,7 @@ import * as schema from "@/lib/database/schema"
 import { serverEnv } from "@/lib/env/server-env"
 
 export const auth = betterAuth({
-  appName: "my-app",
+  appName: "tanstack-template",
   session: {
     freshAge: 7 * 24 * 60 * 60, // 7 days
   },

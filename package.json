@@ -1,4 +1,5 @@
 {
+  "name": "tanstack-template",
   "type": "module",
   "scripts": {
     "dev": "dotenvx run -f .env.local -- bun --bun vite dev --host",
