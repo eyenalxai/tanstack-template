@@ -93,7 +93,9 @@ const SignUpPage = () => {
                       id={field.name}
                       name={field.name}
                       onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(event.target.value)}
+                      onChange={(event) => {
+                        field.handleChange(event.target.value)
+                      }}
                       placeholder="you@example.com"
                       type="email"
                       value={field.state.value}
@@ -120,7 +122,9 @@ const SignUpPage = () => {
                       id={field.name}
                       name={field.name}
                       onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(event.target.value)}
+                      onChange={(event) => {
+                        field.handleChange(event.target.value)
+                      }}
                       placeholder="At least 8 characters"
                       type="password"
                       value={field.state.value}
@@ -135,9 +139,7 @@ const SignUpPage = () => {
 
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(isSubmitting) => (
-                <Button type="submit">
-                  {isSubmitting === true ? "Creating account..." : "Sign Up"}
-                </Button>
+                <Button type="submit">{isSubmitting ? "Creating account..." : "Sign Up"}</Button>
               )}
             </form.Subscribe>
           </form>

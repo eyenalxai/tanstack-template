@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { createStuffSchema } from "@/lib/stuff/forms"
 
-type EditStuffDialogProps = {
+interface EditStuffDialogProps {
   open: boolean
   initialDescription: string
   isPending: boolean
@@ -75,14 +75,22 @@ export const EditStuffDialog = ({
                   error={field.state.meta.errors[0]}
                   id={field.name}
                   onBlur={field.handleBlur}
-                  onChange={(v) => field.handleChange(v)}
+                  onChange={(v) => {
+                    field.handleChange(v)
+                  }}
                   value={field.state.value}
                 />
               )}
             </form.Field>
 
             <DialogFooter variant="bare">
-              <Button onClick={() => onOpenChange(false)} type="button" variant="outline">
+              <Button
+                onClick={() => {
+                  onOpenChange(false)
+                }}
+                type="button"
+                variant="outline"
+              >
                 Cancel
               </Button>
               <Button type="submit">{isPending ? "Saving..." : "Save Changes"}</Button>

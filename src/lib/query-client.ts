@@ -3,16 +3,14 @@ import type { StandardRPCJsonSerializedMetaItem } from "@orpc/client/standard"
 import { StandardRPCJsonSerializer } from "@orpc/client/standard"
 import { QueryClient } from "@tanstack/react-query"
 
-type SerializedQueryData = {
+interface SerializedQueryData {
   json: unknown
   meta: readonly StandardRPCJsonSerializedMetaItem[]
 }
 
 const serializer = new StandardRPCJsonSerializer()
 
-const isUnknownArray = (value: unknown): value is unknown[] => {
-  return Array.isArray(value)
-}
+const isUnknownArray = (value: unknown): value is unknown[] => Array.isArray(value)
 
 const isSerializedMetaItem = (value: unknown): value is StandardRPCJsonSerializedMetaItem => {
   if (!isUnknownArray(value) || value.length === 0) {
@@ -42,8 +40,8 @@ const isSerializedQueryData = (value: unknown): value is SerializedQueryData => 
   return Array.isArray(meta) && meta.every(isSerializedMetaItem)
 }
 
-const makeQueryClient = () => {
-  return new QueryClient({
+const makeQueryClient = () =>
+  new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 30_000,
@@ -71,7 +69,6 @@ const makeQueryClient = () => {
       },
     },
   })
-}
 
 let browserQueryClient: QueryClient | undefined
 

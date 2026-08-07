@@ -19,9 +19,11 @@ export const stuffs = pgTable("stuffs", {
 export type StuffSelect = typeof stuffs.$inferSelect
 export type StuffInsert = typeof stuffs.$inferInsert
 
-export const stuffsRelations = relations(stuffs, ({ one }) => ({
-  user: one(users, {
-    fields: [stuffs.userId],
-    references: [users.id],
-  }),
-}))
+export const stuffsRelations = relations(stuffs, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [stuffs.userId],
+      references: [users.id],
+    }),
+  }
+})

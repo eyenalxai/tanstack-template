@@ -1,7 +1,7 @@
 import type { Transaction } from "@/lib/database/client"
 
-export const listStuffs = (tx: Transaction) => {
-  return tx.query.stuffs.findMany({
+export const listStuffs = (tx: Transaction) =>
+  tx.query.stuffs.findMany({
     orderBy: (table, { desc }) => [desc(table.createdAt)],
     with: {
       user: {
@@ -13,4 +13,3 @@ export const listStuffs = (tx: Transaction) => {
       },
     },
   })
-}

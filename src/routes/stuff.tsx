@@ -128,7 +128,13 @@ const StuffPage = () => {
                       viewerUserId !== null &&
                       viewerUserId !== "" &&
                       stuff.userId === viewerUserId ? (
-                        <Button onClick={() => openEditDialog(stuff)} size="sm" variant="outline">
+                        <Button
+                          onClick={() => {
+                            openEditDialog(stuff)
+                          }}
+                          size="sm"
+                          variant="outline"
+                        >
                           Edit
                         </Button>
                       ) : null}
@@ -151,12 +157,12 @@ const StuffPage = () => {
               closeEditDialog()
             }
           }}
-          onSubmit={(description) =>
+          onSubmit={(description) => {
             updateStuffMutation.mutate({
               uuid: editingStuff.uuid,
               description,
             })
-          }
+          }}
           open={editingStuff !== null}
         />
       ) : null}

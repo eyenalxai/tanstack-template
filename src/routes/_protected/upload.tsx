@@ -82,7 +82,9 @@ const UploadStuffPage = () => {
                   error={field.state.meta.errors[0]}
                   id={field.name}
                   onBlur={field.handleBlur}
-                  onChange={(v) => field.handleChange(v)}
+                  onChange={(v) => {
+                    field.handleChange(v)
+                  }}
                   value={field.state.value}
                 />
               )}

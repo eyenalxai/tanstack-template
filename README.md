@@ -58,11 +58,16 @@ App URL: `http://localhost:3000`
 - `bun run dev` - start dev server
 - `bun run build` - build for production
 - `bun run start` - preview production build
+- `bun run format` - format with oxfmt
+- `bun run lint` - lint with oxlint (type-aware, with fixes)
 - `bun run check` - format, lint (with fixes), and type-check
+- `bun run gen:react-doctor-registry` - regenerate React Doctor rule registry (after upgrading `oxlint-plugin-react-doctor`)
 - `bun run db:generate` - generate Drizzle migration files
 - `bun run db:migrate` - run migrations
 - `bun run db:migrate-local` - run migrations with `.env.local`
 - `bun run auth:generate` - regenerate auth schema file
+
+`src/components/ui/` is formatted by oxfmt but excluded from oxlint (shadcn-managed components).
 
 ## Environment variables
 

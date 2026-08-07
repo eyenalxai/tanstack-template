@@ -15,10 +15,12 @@ import { procedures } from "@/lib/orpc/procedures"
 const getORPCClient = createIsomorphicFn()
   .server(() =>
     createRouterClient(procedures, {
-      context: () => ({
-        db,
-        headers: getRequest().headers,
-      }),
+      context: () => {
+        return {
+          db,
+          headers: getRequest().headers,
+        }
+      },
     }),
   )
   .client((): RouterClient<AppRouter> => {

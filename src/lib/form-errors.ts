@@ -1,15 +1,12 @@
-type ErrorWithMessage = {
+interface ErrorWithMessage {
   message: string
 }
 
-const isErrorWithMessage = (value: unknown): value is ErrorWithMessage => {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "message" in value &&
-    typeof value.message === "string"
-  )
-}
+const isErrorWithMessage = (value: unknown): value is ErrorWithMessage =>
+  typeof value === "object" &&
+  value !== null &&
+  "message" in value &&
+  typeof value.message === "string"
 
 export const getFormErrorMessage = (error: unknown): string | null => {
   if (typeof error === "string") {

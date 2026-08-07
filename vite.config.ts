@@ -1,8 +1,11 @@
+import babel from "@rolldown/plugin-babel"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
-import viteReact from "@vitejs/plugin-react"
+import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import tsConfigPaths from "vite-tsconfig-paths"
+
+const isUiComponent = (id: string): boolean => id.includes("/src/components/ui/")
 
 export default defineConfig({
   server: {
@@ -18,5 +21,9 @@ export default defineConfig({
     }),
     // react's vite plugin must come after start's vite plugin
     viteReact(),
+    babel({
+      filter: (id) => !isUiComponent(id),
+      presets: [reactCompilerPreset()],
+    }),
   ],
 })

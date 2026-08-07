@@ -5,12 +5,8 @@ import { auth } from "@/lib/auth/better-auth"
 export const Route = createFileRoute("/api/auth/$")({
   server: {
     handlers: {
-      GET: async ({ request }: { request: Request }) => {
-        return await auth.handler(request)
-      },
-      POST: async ({ request }: { request: Request }) => {
-        return await auth.handler(request)
-      },
+      GET: async ({ request }: { request: Request }) => auth.handler(request),
+      POST: async ({ request }: { request: Request }) => auth.handler(request),
     },
   },
 })

@@ -1,7 +1,7 @@
 import { Textarea } from "@/components/ui/textarea"
 import { getFormErrorMessage } from "@/lib/form-errors"
 
-type DescriptionFieldProps = {
+interface DescriptionFieldProps {
   id: string
   value: string
   onBlur: () => void
@@ -21,7 +21,9 @@ export const DescriptionField = ({ id, value, onBlur, onChange, error }: Descrip
         id={id}
         name={id}
         onBlur={onBlur}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => {
+          onChange(event.target.value)
+        }}
         placeholder="Write some stuff..."
         rows={5}
         value={value}

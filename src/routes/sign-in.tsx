@@ -85,7 +85,9 @@ const SignInPage = () => {
                       id={field.name}
                       name={field.name}
                       onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(event.target.value)}
+                      onChange={(event) => {
+                        field.handleChange(event.target.value)
+                      }}
                       placeholder="you@example.com"
                       type="email"
                       value={field.state.value}
@@ -112,7 +114,9 @@ const SignInPage = () => {
                       id={field.name}
                       name={field.name}
                       onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(event.target.value)}
+                      onChange={(event) => {
+                        field.handleChange(event.target.value)
+                      }}
                       placeholder="Your password"
                       type="password"
                       value={field.state.value}
@@ -127,7 +131,7 @@ const SignInPage = () => {
 
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(isSubmitting) => (
-                <Button type="submit">{isSubmitting === true ? "Signing in..." : "Sign In"}</Button>
+                <Button type="submit">{isSubmitting ? "Signing in..." : "Sign In"}</Button>
               )}
             </form.Subscribe>
           </form>

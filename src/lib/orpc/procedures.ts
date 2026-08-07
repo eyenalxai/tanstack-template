@@ -9,16 +9,12 @@ import { updateStuff } from "@/server/stuff/update-stuff"
 
 const listStuffProcedure = publicProcedure
   .output(listStuffsOutputSchema)
-  .handler(async ({ context }) => {
-    return await listStuffs(context.db)
-  })
+  .handler(async ({ context }) => listStuffs(context.db))
 
 const createStuffProcedure = authorizedProcedure
   .input(createStuffSchema)
   .output(stuffSchema)
-  .handler(async ({ input, context }) => {
-    return await createStuff(context.db, input, context.user.id)
-  })
+  .handler(async ({ input, context }) => createStuff(context.db, input, context.user.id))
 
 const updateStuffProcedure = authorizedProcedure
   .input(updateStuffSchema)
