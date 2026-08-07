@@ -1,13 +1,8 @@
 import type { OxlintConfig } from "oxlint"
 
-import { buildReactDoctorRules } from "./react-doctor/build-rules.ts"
-
 type RuleConfig = NonNullable<OxlintConfig["rules"]>
 
-const reactDoctorRules = buildReactDoctorRules()
-
 const frontendRuleOverrides: RuleConfig = {
-  ...reactDoctorRules,
   "react/react-compiler": "error",
   "react/jsx-no-literals": "off",
   "react/react-in-jsx-scope": "off",
@@ -27,4 +22,4 @@ const frontendRuleOverrides: RuleConfig = {
   "react/function-component-definition": "off",
 }
 
-export { frontendRuleOverrides, reactDoctorRules }
+export { frontendRuleOverrides }

@@ -10,7 +10,7 @@ const isErrorWithMessage = (value: unknown): value is ErrorWithMessage =>
 
 export const getFormErrorMessage = (error: unknown): string | null => {
   if (typeof error === "string") {
-    return error
+    return error.length > 0 ? error : null
   }
 
   if (typeof error === "number" || typeof error === "boolean") {
@@ -26,7 +26,7 @@ export const getFormErrorMessage = (error: unknown): string | null => {
   }
 
   if (isErrorWithMessage(error)) {
-    return error.message
+    return error.message.length > 0 ? error.message : null
   }
 
   return null

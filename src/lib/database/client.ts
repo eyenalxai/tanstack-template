@@ -9,14 +9,16 @@ const pool = new Pool({
   connectionString: serverEnv.DATABASE_URL,
 })
 
-export const createClient = () =>
+const createClient = () =>
   drizzle({
     client: pool,
     schema: { ...stuffsSchema, ...betterAuthSchema },
   })
 
-export type Transaction =
+type Transaction =
   | Parameters<Parameters<ReturnType<typeof createClient>["transaction"]>[0]>[0]
   | ReturnType<typeof createClient>
 
-export const db = createClient()
+const db = createClient()
+
+export { createClient, db, type Transaction }

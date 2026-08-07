@@ -6,15 +6,17 @@ const authEmailSchema = z
   .min(1, "Email is required")
   .pipe(z.email("Please provide a valid email address"))
 
-export const signInCredentialsSchema = z.object({
+const signInCredentialsSchema = z.object({
   email: authEmailSchema,
   password: z.string().min(1, "Password is required"),
 })
 
-export const signUpCredentialsSchema = z.object({
+const signUpCredentialsSchema = z.object({
   email: authEmailSchema,
   password: z
     .string()
     .min(1, "Password is required")
     .min(8, "Password must be at least 8 characters"),
 })
+
+export { signInCredentialsSchema, signUpCredentialsSchema }

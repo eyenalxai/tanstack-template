@@ -5,8 +5,7 @@ import type { ReactNode } from "react"
 import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router"
 
 import { Providers } from "@/components/providers"
-
-import appCss from "../styles.css?url"
+import appCss from "@/styles.css?url"
 
 const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
   <html>

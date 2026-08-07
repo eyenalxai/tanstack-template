@@ -13,5 +13,4 @@ export default defineConfig({
     ],
   },
   semi: false,
-  ignorePatterns: [],
 })

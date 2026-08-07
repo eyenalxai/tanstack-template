@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, getRouteApi, Link, useNavigate } from "@tanstack/react-router"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,8 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { toastManager } from "@/components/ui/toast"
+import { Spinner } from "@/components/ui/spinner"
+import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth/auth-client"
 import { signUpCredentialsSchema } from "@/lib/auth/forms"
 import { authRedirectSearchSchema, getSafeRedirect } from "@/lib/auth/redirect"
@@ -23,9 +25,11 @@ const deriveNameFromEmail = (email: string) => {
   return trimmed !== undefined && trimmed !== null && trimmed.length > 0 ? trimmed : "user"
 }
 
+const signUpRouteApi = getRouteApi("/sign-up")
+
 const SignUpPage = () => {
   const navigate = useNavigate()
-  const search = Route.useSearch()
+  const search = signUpRouteApi.useSearch()
 
   const form = useForm({
     defaultValues: {
@@ -44,7 +48,7 @@ const SignUpPage = () => {
       })
 
       if (result.error) {
-        toastManager.add({
+        toast.add({
           type: "error",
           title: "Sign up failed",
           description: result.error.message ?? "Could not create account.",
@@ -79,67 +83,74 @@ const SignUpPage = () => {
               void form.handleSubmit()
             }}
           >
-            <form.Field name="email">
-              {(field) => {
-                const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+            <FieldGroup>
+              <form.Field name="email">
+                {(field) => {
+                  const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+                  const isInvalid = fieldError !== null
 
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="font-medium text-sm" htmlFor={field.name}>
-                      Email
-                    </label>
-                    <Input
-                      autoComplete="email"
-                      id={field.name}
-                      name={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) => {
-                        field.handleChange(event.target.value)
-                      }}
-                      placeholder="you@example.com"
-                      type="email"
-                      value={field.state.value}
-                    />
-                    {fieldError ? (
-                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
-                    ) : null}
-                  </div>
-                )
-              }}
-            </form.Field>
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        aria-invalid={isInvalid}
+                        autoComplete="email"
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          field.handleChange(event.target.value)
+                        }}
+                        placeholder="you@example.com"
+                        type="email"
+                        value={field.state.value}
+                      />
+                      {isInvalid ? <FieldError>{fieldError}</FieldError> : null}
+                    </Field>
+                  )
+                }}
+              </form.Field>
 
-            <form.Field name="password">
-              {(field) => {
-                const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+              <form.Field name="password">
+                {(field) => {
+                  const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+                  const isInvalid = fieldError !== null
 
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="font-medium text-sm" htmlFor={field.name}>
-                      Password
-                    </label>
-                    <Input
-                      autoComplete="new-password"
-                      id={field.name}
-                      name={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) => {
-                        field.handleChange(event.target.value)
-                      }}
-                      placeholder="At least 8 characters"
-                      type="password"
-                      value={field.state.value}
-                    />
-                    {fieldError ? (
-                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
-                    ) : null}
-                  </div>
-                )
-              }}
-            </form.Field>
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Input
+                        aria-invalid={isInvalid}
+                        autoComplete="new-password"
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          field.handleChange(event.target.value)
+                        }}
+                        placeholder="At least 8 characters"
+                        type="password"
+                        value={field.state.value}
+                      />
+                      {isInvalid ? <FieldError>{fieldError}</FieldError> : null}
+                    </Field>
+                  )
+                }}
+              </form.Field>
+            </FieldGroup>
 
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(isSubmitting) => (
-                <Button type="submit">{isSubmitting ? "Creating account..." : "Sign Up"}</Button>
+                <Button disabled={isSubmitting} type="submit">
+                  {isSubmitting ? (
+                    <>
+                      <Spinner data-icon="inline-start" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Sign Up"
+                  )}
+                </Button>
               )}
             </form.Subscribe>
           </form>

@@ -20,14 +20,14 @@ const authSessionDataSchema = z.object({
   user: authUserSchema,
 })
 
-export type AuthSession = z.infer<typeof authSessionSchema>
-export type AuthUser = z.infer<typeof authUserSchema>
+type AuthSession = z.infer<typeof authSessionSchema>
+type AuthUser = z.infer<typeof authUserSchema>
 
-export const baseProcedure = os.$context<{ db: typeof db; headers: Headers }>()
+const baseProcedure = os.$context<{ db: typeof db; headers: Headers }>()
 
-export const publicProcedure = baseProcedure
+const publicProcedure = baseProcedure
 
-export const authorizedProcedure = publicProcedure.use(async ({ context, next }) => {
+const authorizedProcedure = publicProcedure.use(async ({ context, next }) => {
   const sessionResult = await auth.api.getSession({
     headers: context.headers,
   })
@@ -46,3 +46,5 @@ export const authorizedProcedure = publicProcedure.use(async ({ context, next })
     },
   })
 })
+
+export { authorizedProcedure, baseProcedure, publicProcedure, type AuthSession, type AuthUser }

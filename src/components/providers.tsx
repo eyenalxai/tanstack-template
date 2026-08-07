@@ -4,10 +4,10 @@ import type { ThemeProviderProps } from "next-themes"
 
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 
-import { ToastProvider } from "@/components/ui/toast"
+import { Toaster } from "@/components/ui/toast"
 
 export const Providers = ({ children, ...props }: ThemeProviderProps) => (
   <NextThemesProvider {...props}>
-    <ToastProvider>{children}</ToastProvider>
+    <Toaster>{children}</Toaster>
   </NextThemesProvider>
 )

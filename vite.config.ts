@@ -5,8 +5,6 @@ import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import tsConfigPaths from "vite-tsconfig-paths"
 
-const isUiComponent = (id: string): boolean => id.includes("/src/components/ui/")
-
 export default defineConfig({
   server: {
     port: 3000,
@@ -22,7 +20,6 @@ export default defineConfig({
     // react's vite plugin must come after start's vite plugin
     viteReact(),
     babel({
-      filter: (id) => !isUiComponent(id),
       presets: [reactCompilerPreset()],
     }),
   ],

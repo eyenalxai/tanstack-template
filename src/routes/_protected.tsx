@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_protected")({
     const session = await getSession()
 
     if (!session) {
-      // oxlint-disable-next-line typescript/only-throw-error: Correct pattern for Tanstack Start
+      // oxlint-disable-next-line typescript/only-throw-error
       throw redirect({
         to: "/sign-in",
         search: {

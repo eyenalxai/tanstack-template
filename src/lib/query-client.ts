@@ -37,7 +37,7 @@ const isSerializedQueryData = (value: unknown): value is SerializedQueryData => 
   }
 
   const meta = value.meta
-  return Array.isArray(meta) && meta.every(isSerializedMetaItem)
+  return Array.isArray(meta) && meta.every((item) => isSerializedMetaItem(item))
 }
 
 const makeQueryClient = () =>
@@ -70,7 +70,7 @@ const makeQueryClient = () =>
     },
   })
 
-let browserQueryClient: QueryClient | undefined
+let browserQueryClient: QueryClient | undefined = void 0
 
 export const getQueryClient = () => {
   if (typeof window === "undefined") {

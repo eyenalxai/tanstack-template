@@ -3,7 +3,7 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
 
 import { users } from "@/lib/database/better-auth"
 
-export const stuffs = pgTable("stuffs", {
+const stuffs = pgTable("stuffs", {
   uuid: uuid("uuid")
     .default(sql`gen_random_uuid()`)
     .primaryKey(),
@@ -16,10 +16,10 @@ export const stuffs = pgTable("stuffs", {
     .notNull(),
 })
 
-export type StuffSelect = typeof stuffs.$inferSelect
-export type StuffInsert = typeof stuffs.$inferInsert
+type StuffSelect = typeof stuffs.$inferSelect
+type StuffInsert = typeof stuffs.$inferInsert
 
-export const stuffsRelations = relations(stuffs, ({ one }) => {
+const stuffsRelations = relations(stuffs, ({ one }) => {
   return {
     user: one(users, {
       fields: [stuffs.userId],
@@ -27,3 +27,5 @@ export const stuffsRelations = relations(stuffs, ({ one }) => {
     }),
   }
 })
+
+export { stuffs, stuffsRelations, type StuffInsert, type StuffSelect }

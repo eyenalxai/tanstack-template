@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm"
 import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core"
 
-export const users = pgTable("users", {
+const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -14,7 +14,7 @@ export const users = pgTable("users", {
     .notNull(),
 })
 
-export const sessions = pgTable(
+const sessions = pgTable(
   "sessions",
   {
     id: text("id").primaryKey(),
@@ -33,7 +33,7 @@ export const sessions = pgTable(
   (table) => [index("sessions_userId_idx").on(table.userId)],
 )
 
-export const accounts = pgTable(
+const accounts = pgTable(
   "accounts",
   {
     id: text("id").primaryKey(),
@@ -57,7 +57,7 @@ export const accounts = pgTable(
   (table) => [index("accounts_userId_idx").on(table.userId)],
 )
 
-export const verifications = pgTable(
+const verifications = pgTable(
   "verifications",
   {
     id: text("id").primaryKey(),
@@ -73,14 +73,14 @@ export const verifications = pgTable(
   (table) => [index("verifications_identifier_idx").on(table.identifier)],
 )
 
-export const usersRelations = relations(users, ({ many }) => {
+const usersRelations = relations(users, ({ many }) => {
   return {
     sessions: many(sessions),
     accounts: many(accounts),
   }
 })
 
-export const sessionsRelations = relations(sessions, ({ one }) => {
+const sessionsRelations = relations(sessions, ({ one }) => {
   return {
     users: one(users, {
       fields: [sessions.userId],
@@ -89,7 +89,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => {
   }
 })
 
-export const accountsRelations = relations(accounts, ({ one }) => {
+const accountsRelations = relations(accounts, ({ one }) => {
   return {
     users: one(users, {
       fields: [accounts.userId],
@@ -97,3 +97,13 @@ export const accountsRelations = relations(accounts, ({ one }) => {
     }),
   }
 })
+
+export {
+  users,
+  sessions,
+  accounts,
+  verifications,
+  usersRelations,
+  sessionsRelations,
+  accountsRelations,
+}

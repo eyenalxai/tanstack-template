@@ -1,10 +1,10 @@
 import { z } from "zod"
 
-export const authRedirectSearchSchema = z.object({
+const authRedirectSearchSchema = z.object({
   redirect: z.string().optional(),
 })
 
-export const getSafeRedirect = (redirect: string | undefined, fallback: string) => {
+const getSafeRedirect = (redirect: string | undefined, fallback: string) => {
   if (redirect === undefined || redirect === null || redirect === "") {
     return fallback
   }
@@ -21,3 +21,5 @@ export const getSafeRedirect = (redirect: string | undefined, fallback: string) 
     return fallback
   }
 }
+
+export { authRedirectSearchSchema, getSafeRedirect }

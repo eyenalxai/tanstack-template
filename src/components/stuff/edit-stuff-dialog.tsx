@@ -8,9 +8,10 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogPanel,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { FieldGroup } from "@/components/ui/field"
+import { Spinner } from "@/components/ui/spinner"
 import { createStuffSchema } from "@/lib/stuff/forms"
 
 interface EditStuffDialogProps {
@@ -57,18 +58,18 @@ export const EditStuffDialog = ({
           <DialogTitle>Edit Stuff</DialogTitle>
           <DialogDescription>Update the description for your entry.</DialogDescription>
         </DialogHeader>
-        <DialogPanel>
-          <form
-            className="flex flex-col gap-3"
-            onSubmit={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              if (isPending) {
-                return
-              }
-              void form.handleSubmit()
-            }}
-          >
+        <form
+          className="flex flex-col gap-3"
+          onSubmit={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            if (isPending) {
+              return
+            }
+            void form.handleSubmit()
+          }}
+        >
+          <FieldGroup>
             <form.Field name="description">
               {(field) => (
                 <DescriptionField
@@ -82,21 +83,30 @@ export const EditStuffDialog = ({
                 />
               )}
             </form.Field>
+          </FieldGroup>
 
-            <DialogFooter variant="bare">
-              <Button
-                onClick={() => {
-                  onOpenChange(false)
-                }}
-                type="button"
-                variant="outline"
-              >
-                Cancel
-              </Button>
-              <Button type="submit">{isPending ? "Saving..." : "Save Changes"}</Button>
-            </DialogFooter>
-          </form>
-        </DialogPanel>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+              }}
+              type="button"
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button disabled={isPending} type="submit">
+              {isPending ? (
+                <>
+                  <Spinner data-icon="inline-start" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

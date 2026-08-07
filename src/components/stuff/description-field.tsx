@@ -1,3 +1,4 @@
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Textarea } from "@/components/ui/textarea"
 import { getFormErrorMessage } from "@/lib/form-errors"
 
@@ -11,13 +12,13 @@ interface DescriptionFieldProps {
 
 export const DescriptionField = ({ id, value, onBlur, onChange, error }: DescriptionFieldProps) => {
   const errorMessage = getFormErrorMessage(error)
+  const isInvalid = errorMessage !== null
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="font-medium text-sm" htmlFor={id}>
-        Description
-      </label>
+    <Field data-invalid={isInvalid}>
+      <FieldLabel htmlFor={id}>Description</FieldLabel>
       <Textarea
+        aria-invalid={isInvalid}
         id={id}
         name={id}
         onBlur={onBlur}
@@ -28,7 +29,7 @@ export const DescriptionField = ({ id, value, onBlur, onChange, error }: Descrip
         rows={5}
         value={value}
       />
-      {errorMessage ? <p className="text-destructive-foreground text-xs">{errorMessage}</p> : null}
-    </div>
+      {isInvalid ? <FieldError>{errorMessage}</FieldError> : null}
+    </Field>
   )
 }

@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, getRouteApi, Link, useNavigate } from "@tanstack/react-router"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,16 +10,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { toastManager } from "@/components/ui/toast"
+import { Spinner } from "@/components/ui/spinner"
+import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth/auth-client"
 import { signInCredentialsSchema } from "@/lib/auth/forms"
 import { authRedirectSearchSchema, getSafeRedirect } from "@/lib/auth/redirect"
 import { getFormErrorMessage } from "@/lib/form-errors"
 
+const signInRouteApi = getRouteApi("/sign-in")
+
 const SignInPage = () => {
   const navigate = useNavigate()
-  const search = Route.useSearch()
+  const search = signInRouteApi.useSearch()
 
   const form = useForm({
     defaultValues: {
@@ -36,7 +40,7 @@ const SignInPage = () => {
       })
 
       if (result.error) {
-        toastManager.add({
+        toast.add({
           type: "error",
           title: "Sign in failed",
           description: result.error.message ?? "Invalid email or password.",
@@ -71,67 +75,74 @@ const SignInPage = () => {
               void form.handleSubmit()
             }}
           >
-            <form.Field name="email">
-              {(field) => {
-                const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+            <FieldGroup>
+              <form.Field name="email">
+                {(field) => {
+                  const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+                  const isInvalid = fieldError !== null
 
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="font-medium text-sm" htmlFor={field.name}>
-                      Email
-                    </label>
-                    <Input
-                      autoComplete="email"
-                      id={field.name}
-                      name={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) => {
-                        field.handleChange(event.target.value)
-                      }}
-                      placeholder="you@example.com"
-                      type="email"
-                      value={field.state.value}
-                    />
-                    {fieldError ? (
-                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
-                    ) : null}
-                  </div>
-                )
-              }}
-            </form.Field>
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        aria-invalid={isInvalid}
+                        autoComplete="email"
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          field.handleChange(event.target.value)
+                        }}
+                        placeholder="you@example.com"
+                        type="email"
+                        value={field.state.value}
+                      />
+                      {isInvalid ? <FieldError>{fieldError}</FieldError> : null}
+                    </Field>
+                  )
+                }}
+              </form.Field>
 
-            <form.Field name="password">
-              {(field) => {
-                const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+              <form.Field name="password">
+                {(field) => {
+                  const fieldError = getFormErrorMessage(field.state.meta.errors[0])
+                  const isInvalid = fieldError !== null
 
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="font-medium text-sm" htmlFor={field.name}>
-                      Password
-                    </label>
-                    <Input
-                      autoComplete="current-password"
-                      id={field.name}
-                      name={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) => {
-                        field.handleChange(event.target.value)
-                      }}
-                      placeholder="Your password"
-                      type="password"
-                      value={field.state.value}
-                    />
-                    {fieldError ? (
-                      <p className="text-destructive-foreground text-xs">{fieldError}</p>
-                    ) : null}
-                  </div>
-                )
-              }}
-            </form.Field>
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Input
+                        aria-invalid={isInvalid}
+                        autoComplete="current-password"
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          field.handleChange(event.target.value)
+                        }}
+                        placeholder="Your password"
+                        type="password"
+                        value={field.state.value}
+                      />
+                      {isInvalid ? <FieldError>{fieldError}</FieldError> : null}
+                    </Field>
+                  )
+                }}
+              </form.Field>
+            </FieldGroup>
 
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(isSubmitting) => (
-                <Button type="submit">{isSubmitting ? "Signing in..." : "Sign In"}</Button>
+                <Button disabled={isSubmitting} type="submit">
+                  {isSubmitting ? (
+                    <>
+                      <Spinner data-icon="inline-start" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
               )}
             </form.Subscribe>
           </form>

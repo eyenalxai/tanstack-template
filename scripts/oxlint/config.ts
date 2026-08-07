@@ -6,7 +6,6 @@ import { frontendRuleOverrides } from "./frontend-rules.ts"
 type PluginConfig = NonNullable<OxlintConfig["plugins"]>
 type SettingsConfig = NonNullable<OxlintConfig["settings"]>
 type OverridesConfig = NonNullable<OxlintConfig["overrides"]>
-type JsPluginsConfig = NonNullable<OxlintConfig["jsPlugins"]>
 
 const plugins: PluginConfig = [
   "typescript",
@@ -17,10 +16,6 @@ const plugins: PluginConfig = [
   "node",
   "react",
   "react-perf",
-]
-
-const jsPlugins: JsPluginsConfig = [
-  { name: "react-doctor", specifier: "oxlint-plugin-react-doctor" },
 ]
 
 const categories: NonNullable<OxlintConfig["categories"]> = {
@@ -35,14 +30,6 @@ const categories: NonNullable<OxlintConfig["categories"]> = {
 const settings: SettingsConfig = {
   react: {
     version: "19.2.8",
-  },
-  "react-doctor": {
-    forbidComponentProps: {
-      forbid: ["style"],
-    },
-    onlyExportComponents: {
-      allowExportNames: ["Route"],
-    },
   },
 }
 
@@ -75,6 +62,15 @@ const routeFileOverrides: OverridesConfig = [
   },
 ]
 
+const environmentFileOverrides: OverridesConfig = [
+  {
+    files: ["src/lib/env/server-env.ts"],
+    rules: {
+      "node/no-process-env": "off",
+    },
+  },
+]
+
 const toolingFileOverrides: OverridesConfig = [
   {
     files: ["oxlint.config.ts"],
@@ -82,28 +78,11 @@ const toolingFileOverrides: OverridesConfig = [
       "import/no-default-export": "off",
     },
   },
-  {
-    files: [
-      "scripts/oxlint/generate-registry.ts",
-      "scripts/oxlint/react-doctor/registry.ts",
-      "scripts/oxlint/lib/**",
-    ],
-    rules: {
-      "max-lines": "off",
-      "no-underscore-dangle": "off",
-      "node/no-process-env": "off",
-      "node/no-sync": "off",
-      "require-unicode-regexp": "off",
-      "prefer-named-capture-group": "off",
-      "init-declarations": "off",
-    },
-  },
 ]
 
 const createOxlintConfig = (): OxlintConfig => {
   return {
     plugins,
-    jsPlugins,
     categories,
     rules: {
       ...baseRules,
@@ -114,7 +93,12 @@ const createOxlintConfig = (): OxlintConfig => {
     },
     ignorePatterns,
     settings,
-    overrides: [...schemaFileOverrides, ...routeFileOverrides, ...toolingFileOverrides],
+    overrides: [
+      ...schemaFileOverrides,
+      ...routeFileOverrides,
+      ...environmentFileOverrides,
+      ...toolingFileOverrides,
+    ],
   }
 }
 

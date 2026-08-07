@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, getRouteApi, Link } from "@tanstack/react-router"
 import { useState } from "react"
 
 import type { ListStuffsOutput } from "@/lib/stuff/feed"
@@ -15,12 +15,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { toastManager } from "@/components/ui/toast"
+import { toast } from "@/components/ui/toast"
 import { orpc } from "@/lib/orpc/client"
 import { getOrpcErrorMessage } from "@/lib/rpc-errors"
 import { getSession } from "@/server/auth/get-session"
 
 type StuffRow = ListStuffsOutput[number]
+
+const stuffRouteApi = getRouteApi("/stuff")
 
 const formatDate = (value: Date | string) => {
   const date = value instanceof Date ? value : new Date(value)
@@ -31,7 +33,7 @@ const formatDate = (value: Date | string) => {
 }
 
 const StuffPage = () => {
-  const { viewerUserId } = Route.useLoaderData()
+  const { viewerUserId } = stuffRouteApi.useLoaderData()
   const queryClient = useQueryClient()
   const { data: stuffRows } = useQuery(orpc.stuff.list.queryOptions())
   const [editingStuff, setEditingStuff] = useState<StuffRow | null>(null)
@@ -58,7 +60,7 @@ const StuffPage = () => {
           orpc.stuff.list.queryKey(),
           context?.previousStuffList,
         )
-        toastManager.add({
+        toast.add({
           type: "error",
           title: "Update failed",
           description: getOrpcErrorMessage(error, "Could not update stuff. Please try again."),
